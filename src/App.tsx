@@ -4,6 +4,7 @@ import { Nav } from './components/Nav'
 import { SectionHeading } from './components/SectionHeading'
 import { navLinks, sectionTitles, type NavLink } from './data/event'
 import { About } from './sections/About'
+import { Faq } from './sections/Faq'
 import { Hero } from './sections/Hero'
 import { Schedule } from './sections/Schedule'
 import { Sponsors } from './sections/Sponsors'
@@ -19,6 +20,7 @@ const sectionComponents: Partial<Record<NavLink['href'], ComponentType<{ index: 
   '#tracks': Tracks,
   '#schedule': Schedule,
   '#sponsors': Sponsors,
+  '#faq': Faq,
 }
 
 function App() {

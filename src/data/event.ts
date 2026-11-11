@@ -291,6 +291,8 @@ export const faq = {
   terminalTitle: '// FAQ.exe',
   heading: 'Frequently Asked Questions',
   title: 'Frequently asked questions',
+  moreTitle: 'Still have questions?',
+  moreText: 'Email us and we’ll get back to you.',
   items: [
     {
       question: 'What is a hackathon?',
