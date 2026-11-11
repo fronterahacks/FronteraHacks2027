@@ -14,6 +14,8 @@ const BURST_SPIN = 3
 /** Once scattered, cubes keep drifting: how far (cells) and how fast. */
 const DRIFT = 1.5
 const DRIFT_SPEED = 0.35
+/** Below this scatter amount the figure snaps exactly back together. */
+const REST_THRESHOLD = 0.004
 
 // One shared unit cube; each instance is scaled to its voxel's depth.
 const geometry = new THREE.BoxGeometry(1, 1, 1)
@@ -66,21 +68,27 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
     [voxels],
   )
 
-  // Place every cube at its assembled position.
-  useLayoutEffect(() => {
-    const m = mesh.current
-    if (!m) return
+  // Place every cube exactly at its assembled position. Used on mount, and
+  // again whenever the scatter returns to ~0 so the figure is pixel-perfect.
+  const writeRestPose = (m: THREE.InstancedMesh) => {
     const matrix = new THREE.Matrix4()
-    const color = new THREE.Color()
     voxels.forEach((v, i) => {
       matrix.makeScale(CUBE, CUBE, v.depth * CUBE)
       matrix.setPosition(v.x, v.y, v.z)
       m.setMatrixAt(i, matrix)
-      m.setColorAt(i, color.set(v.color))
     })
     m.instanceMatrix.needsUpdate = true
+  }
+
+  useLayoutEffect(() => {
+    const m = mesh.current
+    if (!m) return
+    writeRestPose(m)
+    const color = new THREE.Color()
+    voxels.forEach((v, i) => m.setColorAt(i, color.set(v.color)))
     if (m.instanceColor) m.instanceColor.needsUpdate = true
     m.computeBoundingSphere()
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- writeRestPose only depends on voxels
   }, [voxels])
 
   // Scratch objects reused every frame (no garbage per frame).
@@ -98,13 +106,17 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
     const m = mesh.current
     if (!m) return
     const burst = mascotFx.burst
-    // Skip the work entirely while assembled (after one final reset frame).
-    if (burst < 0.001) {
-      if (!wasBurst.current) return
-      wasBurst.current = false
-    } else {
-      wasBurst.current = true
+    // Close enough to assembled: snap every cube exactly home (once), then
+    // skip all per-cube work until it scatters again. Without this, tiny
+    // leftover values leave cubes slightly tilted/squashed at the top.
+    if (burst < REST_THRESHOLD) {
+      if (wasBurst.current) {
+        writeRestPose(m)
+        wasBurst.current = false
+      }
+      return
     }
+    wasBurst.current = true
 
     const { matrix, pos, quat, scale } = scratch
     const t = state.clock.elapsedTime
@@ -122,8 +134,9 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
         v.y + f.dir.y * d + driftY + trail * burst * f.reach,
         v.z + f.dir.z * d,
       )
-      // Tumble: a fixed amount from scattering, plus a slow continuous spin.
-      quat.setFromAxisAngle(f.axis, burst * (BURST_SPIN * f.reach + t * 0.4))
+      // Tumble: a fixed amount from scattering, plus a slow rocking that
+      // stays bounded (sin), so it can't build up the longer the page is open.
+      quat.setFromAxisAngle(f.axis, burst * (BURST_SPIN * f.reach + Math.sin(t * 0.4 + i) * 0.8))
       scale.set(CUBE, CUBE, v.depth * CUBE * (1 - burst * 0.6)) // long cubes shrink to chunks in flight
       matrix.compose(pos, quat, scale)
       m.setMatrixAt(i, matrix)
