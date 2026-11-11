@@ -18,7 +18,10 @@ export function GsapFrameDriver() {
   const advance = useThree((s) => s.advance)
 
   useEffect(() => {
-    const tick = (time: number) => advance(time * 1000) // seconds -> ms
+    // gsap.ticker gives seconds. With frameloop="never", R3F uses this value
+    // directly as clock.elapsedTime (seconds), and delta = new - old. Do NOT
+    // convert to ms: that ran every useFrame clock 1000x too fast.
+    const tick = (time: number) => advance(time)
     gsap.ticker.add(tick)
     return () => gsap.ticker.remove(tick)
   }, [advance])
