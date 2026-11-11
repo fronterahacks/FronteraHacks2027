@@ -38,6 +38,8 @@ export type ScheduleDay = {
   label: string
   /** Tab date, e.g. "MARCH 6TH". */
   date: string
+  /** Day heading in the continuous timeline, e.g. "Saturday, March 6". */
+  heading: string
   items: ScheduleItem[]
 }
 
@@ -214,6 +216,7 @@ export const schedule = {
   terminalTitle: '// SCHEDULE.exe',
   heading: 'HACKATHON SCHEDULE',
   title: 'Hackathon schedule',
+  intro: '24 hours, start to finish. Scroll through the weekend.',
   bootLines: [
     '> INITIALIZING SCHEDULE DATABASE...',
     '> DECRYPTING EVENT DATA...',
@@ -223,6 +226,7 @@ export const schedule = {
     {
       label: 'SAT',
       date: 'MARCH 6TH',
+      heading: 'Saturday, March 6',
       items: [
         { time: '9:00 AM', event: 'Check In' },
         { time: '10:00 AM', event: 'Breakfast Time' },
@@ -240,6 +244,7 @@ export const schedule = {
     {
       label: 'SUN',
       date: 'MARCH 7TH',
+      heading: 'Sunday, March 7',
       items: [
         { time: '12:00 AM', event: 'Midnight Movie' },
         { time: '8:00 AM', event: 'Submission Closes & Breakfast Time' },

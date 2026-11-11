@@ -5,6 +5,7 @@ import { SectionHeading } from './components/SectionHeading'
 import { navLinks, sectionTitles, type NavLink } from './data/event'
 import { About } from './sections/About'
 import { Hero } from './sections/Hero'
+import { Schedule } from './sections/Schedule'
 import { Tracks } from './sections/Tracks'
 import { useLenis } from './scroll/useLenis'
 
@@ -15,6 +16,7 @@ const Scene = lazy(() => import('./three/Scene'))
 const sectionComponents: Partial<Record<NavLink['href'], ComponentType<{ index: number }>>> = {
   '#about': About,
   '#tracks': Tracks,
+  '#schedule': Schedule,
 }
 
 function App() {
