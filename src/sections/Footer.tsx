@@ -15,7 +15,7 @@ import { event, footer, socials } from '../data/event'
 export function Footer() {
   const instagram = socials.find((s) => s.name === 'Instagram' && s.url)
   const cta = event.registerUrl
-    ? { href: event.registerUrl, label: 'Register' }
+    ? { href: event.registerUrl, label: event.registerLabel }
     : instagram?.url
       ? { href: instagram.url, label: footer.updatesLabel }
       : null

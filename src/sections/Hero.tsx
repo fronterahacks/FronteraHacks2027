@@ -90,7 +90,7 @@ export function Hero({ children }: { children?: ReactNode }) {
                 rel="noreferrer"
                 className="inline-block rounded-full bg-white px-7 py-3 text-sm font-semibold text-fh-bg transition hover:bg-fh-lilac"
               >
-                Register →
+                {event.registerLabel} →
               </a>
             ) : (
               <a

@@ -74,8 +74,10 @@ export const event = {
   dateLabel: 'March 6th – 7th, 2027',
   location: 'McAllen, TX', // TODO: exact venue
   durationHours: 24,
-  /** TODO: confirm the live 2027 registration link. null = button hidden. */
-  registerUrl: null as string | null,
+  /** Airtable (pre-)registration form. null = Register buttons hidden. */
+  registerUrl: 'https://airtable.com/app03CmLX12vmtzhI/shrhTN6iuW0TPlnwi' as string | null,
+  /** Button text for registerUrl. Change to 'Register' when full registration opens. */
+  registerLabel: 'Pre-register',
   contactEmail: 'fronterahacks@gmail.com',
   codeOfConductUrl: 'https://static.mlh.io/docs/mlh-code-of-conduct.pdf',
 } as const
