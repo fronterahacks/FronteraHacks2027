@@ -1,5 +1,6 @@
 import { lazy, Suspense, type ComponentType } from 'react'
 import { Countdown } from './components/Countdown'
+import { CustomCursor } from './components/CustomCursor'
 import { GrainOverlay } from './components/GrainOverlay'
 import { Nav } from './components/Nav'
 import { SectionHeading } from './components/SectionHeading'
@@ -68,6 +69,7 @@ function App() {
       <Footer />
 
       <GrainOverlay />
+      <CustomCursor />
     </>
   )
 }

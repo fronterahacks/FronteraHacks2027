@@ -136,4 +136,11 @@
   [role='button']:not([aria-disabled='true']) {
     cursor: pointer;
   }
+
+  /* While the custom cursor is active (mouse users, motion allowed), hide
+     the native one everywhere. */
+  html.has-custom-cursor,
+  html.has-custom-cursor * {
+    cursor: none !important;
+  }
 }
