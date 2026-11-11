@@ -40,15 +40,20 @@ export function RevealText({ children, as = 'h2', className, delay = 0 }: Reveal
         mask: 'lines',
         autoSplit: true,
         // Returning the animation lets SplitText rebuild it after a re-split.
-        onSplit: (self) =>
-          gsap.from(self.lines, {
+        onSplit: (self) => {
+          // Tight headline leading would let the masks clip descenders
+          // (y, g, p): pad each mask down a touch, pulled back by an equal
+          // negative margin so the layout doesn't move.
+          gsap.set(self.masks, { paddingBottom: '0.12em', marginBottom: '-0.12em' })
+          return gsap.from(self.lines, {
             yPercent: 115,
             duration: 1.1,
             ease: 'expo.out',
             stagger: 0.09,
             delay,
             scrollTrigger: { trigger: el, start: 'top 85%', once: true },
-          }),
+          })
+        },
       })
       // useGSAP reverts the split and its animation automatically on cleanup.
     },

@@ -1,7 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { Countdown } from './components/Countdown'
 import { Nav } from './components/Nav'
-import { navLinks } from './data/event'
+import { SectionHeading } from './components/SectionHeading'
+import { navLinks, sectionTitles } from './data/event'
 import { Hero } from './sections/Hero'
 import { useLenis } from './scroll/useLenis'
 
@@ -30,15 +31,15 @@ function App() {
         <Hero>
           <Countdown />
         </Hero>
-        {/* Temporary placeholder sections, one per nav link, so the links have
-            somewhere to go. Each gets replaced by its real component later. */}
-        {navLinks.map((link) => (
+        {/* Temporary placeholder sections, one per nav link, each opened with
+            its real heading. The content is added section by section. */}
+        {navLinks.map((link, i) => (
           <section
             key={link.href}
             id={link.href.slice(1)}
-            className="flex min-h-svh scroll-mt-20 items-center justify-center font-mono text-3xl text-fh-lilac/60"
+            className="min-h-[80svh] scroll-mt-20 px-5 py-28 sm:px-8 md:px-12 md:py-36"
           >
-            {`// ${link.label.toUpperCase()}.exe`}
+            <SectionHeading index={i + 1} label={link.label} title={sectionTitles[link.href]} />
           </section>
         ))}
       </main>

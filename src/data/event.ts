@@ -133,6 +133,8 @@ export const hero = {
 export const about = {
   terminalTitle: '// ABOUT.exe',
   heading: 'ABOUT FRONTERA HACKS',
+  /** Modern sentence-case title for the new design. */
+  title: 'About Frontera Hacks',
   description:
     'Frontera Devs is hosting its 4th annual Frontera Hacks, a 24 hour hackathon that aims to foster a community of developers driven to innovate. At Frontera Hacks, we aim to provide an experience for developers of all skill levels to adopt skills taught outside of the classroom, collaborate with like-minded teams, and design projects with the potential to accelerate innovation in the Rio Grande Valley.',
   pillarsLabel: 'AT FRONTERA HACKS, YOU WILL:',
@@ -162,6 +164,7 @@ export const about = {
 export const tracks = {
   terminalTitle: '// TRACKS.exe',
   heading: 'CHOOSE YOUR TRACK',
+  title: 'Choose your track',
   subtitle: '> Select a track to begin your hackathon journey.',
   items: [
     {
@@ -201,6 +204,7 @@ export const tracks = {
 export const schedule = {
   terminalTitle: '// SCHEDULE.exe',
   heading: 'HACKATHON SCHEDULE',
+  title: 'Hackathon schedule',
   bootLines: [
     '> INITIALIZING SCHEDULE DATABASE...',
     '> DECRYPTING EVENT DATA...',
@@ -247,6 +251,7 @@ export const schedule = {
 export const sponsors = {
   terminalTitle: '// SPONSORS.exe',
   heading: 'OUR SPONSORS',
+  title: 'Our sponsors',
   subtitle: '> Frontera Hacks is made possible by our wonderful sponsors.',
   items: [
     // TODO: add website link + logo once provided.
@@ -266,6 +271,7 @@ export const sponsors = {
 export const faq = {
   terminalTitle: '// FAQ.exe',
   heading: 'Frequently Asked Questions',
+  title: 'Frequently asked questions',
   items: [
     {
       question: 'What is a hackathon?',
@@ -309,6 +315,18 @@ export const faq = {
     },
   ] satisfies FaqItem[],
 } as const
+
+// ---------------------------------------------------------------------------
+// Section titles by nav link (used to open each section)
+// ---------------------------------------------------------------------------
+
+export const sectionTitles: Record<NavLink['href'], string> = {
+  '#about': about.title,
+  '#tracks': tracks.title,
+  '#schedule': schedule.title,
+  '#sponsors': sponsors.title,
+  '#faq': faq.title,
+}
 
 // ---------------------------------------------------------------------------
 // Socials & footer
