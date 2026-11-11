@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import { scrollState } from '../../scroll/scrollState'
 import { pointerState } from '../pointerState'
+import { easeOut, finaleProgress } from '../finale/finaleProgress'
 import { createMascotFx } from './mascotFx'
 import { buildMascot, EYE_CENTER_Y, GRID_COLS, GRID_ROWS, HAT_BASE_Y } from './voxels'
 import { VoxelPart } from './VoxelPart'
@@ -34,6 +35,15 @@ const PARALLAX = 0.35
 /** The cubes fade out as the hero's bottom edge (end of the glass panel)
  *  moves from this share of the screen height up to the top. */
 const FADE_ZONE = 0.7
+/** Finale: share of finale progress over which cubes arrive (grow in) and
+ *  then fly together; the last part lines up with the horizon pulse. */
+const FINALE_ARRIVE = [0.12, 0.4] as const
+const FINALE_ASSEMBLE = [0.35, 0.9] as const
+/** Finale: tips its hat for this long, every this many seconds, once whole. */
+const GOODBYE_EVERY = 4
+const GOODBYE_FOR = 1.3
+
+type Placement = 'hero' | 'finale'
 
 /**
  * The Frontera Devs mascot as a glossy 3D voxel figure, built cube-for-pixel
@@ -48,8 +58,14 @@ const FADE_ZONE = 0.7
  * scatters into drifting cubes (by scroll position, so it stays scattered),
  * reassembling only when you scroll back up to it. Past the hero panel the
  * cubes shrink away so the sections below get a clean background.
+ *
+ * placement="finale": a second mascot for the footer's frontier finale. It
+ * stands on the horizon to the right of the sign-off text, flies together
+ * from scattered cubes as the footer arrives, then tips its hat goodbye every
+ * few seconds (cursor-follow, blinking and hover tip still work).
  */
-export function Mascot() {
+export function Mascot({ placement = 'hero' }: { placement?: Placement }) {
+  const finale = placement === 'finale'
   const parts = useMemo(() => buildMascot(), [])
   const viewport = useThree((s) => s.viewport)
   const reduceMotion = usePrefersReducedMotion()
@@ -65,11 +81,21 @@ export function Mascot() {
 
   const portrait = viewport.aspect < 1
   // World units per grid cell: fit the figure to a share of the screen.
-  const unit = portrait
+  const heroUnit = portrait
     ? Math.min((viewport.height * 0.42) / GRID_ROWS, (viewport.width * 0.75) / GRID_COLS)
     : Math.min((viewport.height * 0.78) / GRID_ROWS, (viewport.width * 0.42) / GRID_COLS)
-  const x = portrait ? 0 : viewport.width * 0.22
-  const y = portrait ? viewport.height * 0.2 : viewport.height * 0.04
+  const finaleUnit = portrait
+    ? Math.min((viewport.height * 0.2) / GRID_ROWS, (viewport.width * 0.4) / GRID_COLS)
+    : Math.min((viewport.height * 0.3) / GRID_ROWS, (viewport.width * 0.25) / GRID_COLS)
+  const unit = finale ? finaleUnit : heroUnit
+  // Finale: feet on the horizon (~69% down the screen), right of the text.
+  const finaleFeetY = viewport.height / 2 - viewport.height * 0.69
+  const x = finale ? viewport.width * (portrait ? 0.28 : 0.32) : portrait ? 0 : viewport.width * 0.22
+  const y = finale
+    ? finaleFeetY + (GRID_ROWS * unit) / 2
+    : portrait
+      ? viewport.height * 0.2
+      : viewport.height * 0.04
 
   useFrame((state, delta) => {
     const b = body.current
@@ -80,34 +106,46 @@ export function Mascot() {
     const t = state.clock.elapsedTime
     const looking = pointerState.active
 
-    // --- Scroll ---
-    // window.scrollY works with or without Lenis (reduced motion).
-    const screensScrolled = window.scrollY / window.innerHeight
-
-    // Parallax: rise slower than the page, so the (scattered) cubes linger
-    // on screen as a backdrop instead of shooting off the top.
-    const rootY = y + screensScrolled * viewport.height * PARALLAX
-    r.position.y = rootY
-
-    // Scatter follows scroll POSITION: the further from the hero, the more
-    // it comes apart, and it stays apart while you're down the page. It only
-    // reassembles as you scroll back up.
-    const byPosition = THREE.MathUtils.smoothstep(screensScrolled, SCATTER_START, SCATTER_END)
-
-    // Scroll SPEED adds a temporary kick on top, so flicks feel energetic.
+    // Scroll speed, smoothed (used for flick kicks and cube trails).
     const raw = THREE.MathUtils.clamp(scrollState.velocity / FAST_SCROLL, -1, 1)
     scrollSpeed.current = THREE.MathUtils.damp(scrollSpeed.current, raw, 6, delta)
-    const kick = Math.abs(scrollSpeed.current) * FLICK_BOOST * (1 - byPosition)
-
-    fx.current.burst = reduceMotion ? 0 : Math.min(1, byPosition + kick)
     fx.current.direction = scrollSpeed.current
 
-    // Fade out once you've scrolled past the hero (#top), measured from where
-    // its bottom edge is on screen, so it adapts to the panel's real height.
-    const hero = document.getElementById('top')
-    const heroBottom = hero ? hero.getBoundingClientRect().bottom : Infinity
-    fx.current.fade = THREE.MathUtils.smoothstep(1 - heroBottom / (window.innerHeight * FADE_ZONE), 0, 1)
-    // Fully faded: stop drawing it at all (saves GPU work further down).
+    let rootY: number
+    if (finale) {
+      // --- Finale: arrive and fly together as the footer scrolls in ---
+      const p = finaleProgress()
+      const arrive = THREE.MathUtils.smoothstep(p, FINALE_ARRIVE[0], FINALE_ARRIVE[1])
+      const assemble = THREE.MathUtils.smoothstep(p, FINALE_ASSEMBLE[0], FINALE_ASSEMBLE[1])
+      // Rises the last bit into place as it assembles.
+      rootY = y - (1 - easeOut(assemble)) * viewport.height * 0.15
+      fx.current.burst = reduceMotion ? 0 : 1 - assemble
+      fx.current.fade = reduceMotion ? (p > FINALE_ARRIVE[0] ? 0 : 1) : 1 - arrive
+    } else {
+      // --- Hero ---
+      // window.scrollY works with or without Lenis (reduced motion).
+      const screensScrolled = window.scrollY / window.innerHeight
+
+      // Parallax: rise slower than the page, so the (scattered) cubes linger
+      // on screen as a backdrop instead of shooting off the top.
+      rootY = y + screensScrolled * viewport.height * PARALLAX
+
+      // Scatter follows scroll POSITION: the further from the hero, the more
+      // it comes apart, and it stays apart while you're down the page. It
+      // only reassembles as you scroll back up.
+      const byPosition = THREE.MathUtils.smoothstep(screensScrolled, SCATTER_START, SCATTER_END)
+      // Scroll SPEED adds a temporary kick on top, so flicks feel energetic.
+      const kick = Math.abs(scrollSpeed.current) * FLICK_BOOST * (1 - byPosition)
+      fx.current.burst = reduceMotion ? 0 : Math.min(1, byPosition + kick)
+
+      // Fade out once you've scrolled past the hero (#top), measured from
+      // where its bottom edge is on screen, so it adapts to the panel height.
+      const hero = document.getElementById('top')
+      const heroBottom = hero ? hero.getBoundingClientRect().bottom : Infinity
+      fx.current.fade = THREE.MathUtils.smoothstep(1 - heroBottom / (window.innerHeight * FADE_ZONE), 0, 1)
+    }
+    r.position.y = rootY
+    // Fully faded: stop drawing it at all (saves GPU work).
     r.visible = fx.current.fade < 0.999
 
     // --- Turn toward the cursor (or idle sway) ---
@@ -135,9 +173,12 @@ export function Mascot() {
       Math.abs(cursorX - x) < (GRID_COLS * unit) / 2 &&
       Math.abs(cursorY - rootY) < (GRID_ROWS * unit) / 2 &&
       fx.current.burst < 0.1 // no hat tip mid-explosion
-    const tip = hovering ? 1 : 0
+    // Finale: once whole, tip the hat goodbye every few seconds.
+    const goodbye =
+      finale && !reduceMotion && fx.current.burst < 0.02 && t % GOODBYE_EVERY < GOODBYE_FOR
+    const tip = hovering || goodbye ? 1 : 0
     // A slightly slower "settle" than "lift" so it feels like a polite gesture.
-    const speed = hovering ? 7 : 4
+    const speed = tip ? 7 : 4
     h.position.y = THREE.MathUtils.damp(h.position.y, HAT_BASE_Y + tip * HAT_LIFT, speed, delta)
     h.rotation.z = THREE.MathUtils.damp(h.rotation.z, tip * HAT_TILT, speed, delta)
     h.rotation.x = THREE.MathUtils.damp(h.rotation.x, tip * HAT_BACK, speed, delta)

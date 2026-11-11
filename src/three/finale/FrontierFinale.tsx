@@ -1,3 +1,4 @@
+import { Mascot } from '../mascot/Mascot'
 import { FrontierHorizon } from './FrontierHorizon'
 import { FrontierSun } from './FrontierSun'
 import { FrontierTerrain } from './FrontierTerrain'
@@ -13,6 +14,7 @@ export function FrontierFinale() {
       <FrontierSun />
       <FrontierTerrain />
       <FrontierHorizon />
+      <Mascot placement="finale" />
     </group>
   )
 }
