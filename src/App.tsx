@@ -1,5 +1,6 @@
 import { lazy, Suspense, type ComponentType } from 'react'
 import { Countdown } from './components/Countdown'
+import { GrainOverlay } from './components/GrainOverlay'
 import { Nav } from './components/Nav'
 import { SectionHeading } from './components/SectionHeading'
 import { navLinks, sectionTitles, type NavLink } from './data/event'
@@ -65,6 +66,8 @@ function App() {
       </main>
 
       <Footer />
+
+      <GrainOverlay />
     </>
   )
 }

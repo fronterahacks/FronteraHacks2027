@@ -79,6 +79,19 @@
     100% { opacity: 1; }
   }
 
+  /* Film grain jitter: jumps the noise tile to a new offset a few times a
+     second (steps, not a slide) so it flickers like real film grain. */
+  --animate-grain: grain 0.8s steps(1) infinite;
+
+  @keyframes grain {
+    0% { transform: translate(0, 0); }
+    20% { transform: translate(-6%, 4%); }
+    40% { transform: translate(5%, -7%); }
+    60% { transform: translate(-3%, -5%); }
+    80% { transform: translate(7%, 3%); }
+    100% { transform: translate(0, 0); }
+  }
+
   /* Countdown digits: slide up from below with a quick blur, odometer-style */
   --animate-digit-in: digit-in 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 
