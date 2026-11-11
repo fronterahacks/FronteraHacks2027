@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { Nav } from './components/Nav'
 import { useLenis } from './scroll/useLenis'
 
 // Lazy-load the 3D scene so page content isn't blocked by Three.js.
@@ -18,6 +19,8 @@ function App() {
           <Scene />
         </Suspense>
       </div>
+
+      <Nav />
 
       <main>
         <section className="flex min-h-svh flex-col items-center justify-center gap-4">
