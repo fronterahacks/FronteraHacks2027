@@ -4,7 +4,7 @@ import { event, navLinks } from '../data/event'
 
 /**
  * Fixed top navigation, styled after the placeholder site's "cyber-nav":
- * glassy dark bar, purple bottom border, glowing mascot, monospace links
+ * frosted-glass bar with a neon hairline, glowing mascot, monospace links
  * with a gradient underline that grows on hover.
  *
  * Below the md breakpoint (768px) the links collapse into a menu button,
@@ -22,7 +22,17 @@ export function Nav() {
   }, [open])
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-fh-purple/25 bg-fh-panel backdrop-blur-lg">
+    // Glass bar, built from layers:
+    // - bg-white/[0.04]: barely-there frosted tint (lets the scene show through)
+    // - backdrop-blur-xl + backdrop-saturate-150: frosts and slightly boosts
+    //   the colours of whatever scrolls behind it
+    // - inset top highlight + soft drop shadow: the "edge of a glass pane"
+    // - bottom hairline that fades in from the sides in neon purple
+    <header className="fixed inset-x-0 top-0 z-50 bg-white/[0.04] shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_8px_32px_rgb(0_0_0/0.35)] backdrop-blur-xl backdrop-saturate-150">
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-fh-purple/50 to-transparent"
+      />
       {/* Three columns: [logo | links | spacer]. The two outer columns are
           equal width (1fr each), which keeps the links exactly centred in
           the bar no matter how wide the logo is. Full width (no max-w) so
@@ -67,7 +77,7 @@ export function Nav() {
       {open && (
         <ul
           id="mobile-menu"
-          className="flex flex-col gap-1 border-t border-fh-border px-4 pt-2 pb-4 md:hidden"
+          className="flex flex-col gap-1 border-t border-white/10 px-4 pt-2 pb-4 md:hidden"
         >
           {navLinks.map((link) => (
             <li key={link.href}>
