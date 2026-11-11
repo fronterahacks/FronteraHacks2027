@@ -1,14 +1,21 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, type ComponentType } from 'react'
 import { Countdown } from './components/Countdown'
 import { Nav } from './components/Nav'
 import { SectionHeading } from './components/SectionHeading'
-import { navLinks, sectionTitles } from './data/event'
+import { navLinks, sectionTitles, type NavLink } from './data/event'
 import { About } from './sections/About'
 import { Hero } from './sections/Hero'
+import { Tracks } from './sections/Tracks'
 import { useLenis } from './scroll/useLenis'
 
 // Lazy-load the 3D scene so page content isn't blocked by Three.js.
 const Scene = lazy(() => import('./three/Scene'))
+
+/** Finished sections, by nav link. Links without one show a placeholder. */
+const sectionComponents: Partial<Record<NavLink['href'], ComponentType<{ index: number }>>> = {
+  '#about': About,
+  '#tracks': Tracks,
+}
 
 function App() {
   useLenis()
@@ -34,9 +41,10 @@ function App() {
         </Hero>
         {/* One section per nav link. Finished sections render their own
             component; the rest are placeholders with just their heading. */}
-        {navLinks.map((link, i) =>
-          link.href === '#about' ? (
-            <About key={link.href} index={i + 1} />
+        {navLinks.map((link, i) => {
+          const Section = sectionComponents[link.href]
+          return Section ? (
+            <Section key={link.href} index={i + 1} />
           ) : (
             <section
               key={link.href}
@@ -45,8 +53,8 @@ function App() {
             >
               <SectionHeading index={i + 1} label={link.label} title={sectionTitles[link.href]} />
             </section>
-          ),
-        )}
+          )
+        })}
       </main>
     </>
   )

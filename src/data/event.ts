@@ -173,6 +173,8 @@ export const tracks = {
   heading: 'CHOOSE YOUR TRACK',
   title: 'Choose your track',
   subtitle: '> Select a track to begin your hackathon journey.',
+  /** Plain-language intro for the new design (from the subtitle above). */
+  intro: 'Select a track to begin your hackathon journey.',
   items: [
     {
       number: '01',
