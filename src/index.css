@@ -116,4 +116,11 @@
     background-color: var(--color-fh-bg);
     color: white;
   }
+
+  /* Tailwind v4 resets buttons to the default arrow cursor. Show the
+     "clickable" hand on every enabled button (track rows, menu, tabs...). */
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
 }
