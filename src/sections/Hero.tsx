@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import logo from '../assets/brand/frontera-hacks-logo.png'
 import { event, hero } from '../data/event'
 
@@ -9,9 +9,11 @@ const delay = (seconds: number): CSSProperties => ({ animationDelay: `${seconds}
  * Full-screen hero, modern layout:
  * - content anchored bottom-left, leaving open space for the 3D scene
  * - oversized headline whose lines mask up into view on load
- * - small monospace eyebrow + a meta row (date, location, scroll hint)
+ * - small monospace eyebrow, then a dark glass panel holding the meta row
+ *   (subline, date, location, button) and, below a divider, `children`
+ *   (the countdown), so everything stays readable over the 3D scene
  */
-export function Hero() {
+export function Hero({ children }: { children?: ReactNode }) {
   return (
     <section
       id="top"
@@ -55,43 +57,51 @@ export function Hero() {
         ))}
       </h1>
 
-      {/* Meta row on a dark "smoked glass" panel, so the text stays readable
-          when the scattered mascot cubes drift behind it. Same layered glass
-          recipe as the nav (blur + saturate, top highlight, soft shadow), but
-          tinted dark instead of light. */}
+      {/* One dark "smoked glass" panel from the subline down through the
+          countdown, so the text stays readable when the scattered mascot
+          cubes drift behind it. Same layered glass recipe as the nav (blur +
+          saturate, top highlight, soft shadow), but tinted dark. */}
       <div
-        className="mt-10 grid gap-6 rounded-2xl border border-white/10 bg-fh-bg/55 p-5 shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_12px_40px_rgb(0_0_0/0.45)] backdrop-blur-xl backdrop-saturate-150 motion-safe:animate-fade-in sm:p-6 md:grid-cols-[1fr_auto_auto] md:items-end md:gap-12 md:px-8"
+        className="mt-10 rounded-2xl border border-white/10 bg-fh-bg/55 p-5 shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_12px_40px_rgb(0_0_0/0.45)] backdrop-blur-xl backdrop-saturate-150 motion-safe:animate-fade-in sm:p-6 md:px-8"
         style={delay(0.7)}
       >
-        <p className="max-w-md text-base text-white/70 sm:text-lg">{hero.subline}</p>
+        {/* Meta row */}
+        <div className="grid gap-6 md:grid-cols-[1fr_auto_auto] md:items-end md:gap-12">
+          <p className="max-w-md text-base text-white/70 sm:text-lg">{hero.subline}</p>
 
-        <dl className="flex gap-10 font-mono text-xs tracking-[0.2em] uppercase sm:text-sm">
-          <div>
-            <dt className="text-white/60">Date</dt>
-            <dd className="mt-1 text-white">{event.dateLabel}</dd>
-          </div>
-          <div>
-            <dt className="text-white/60">Location</dt>
-            <dd className="mt-1 text-white">{event.location}</dd>
-          </div>
-        </dl>
+          <dl className="flex gap-10 font-mono text-xs tracking-[0.2em] uppercase sm:text-sm">
+            <div>
+              <dt className="text-white/60">Date</dt>
+              <dd className="mt-1 text-white">{event.dateLabel}</dd>
+            </div>
+            <div>
+              <dt className="text-white/60">Location</dt>
+              <dd className="mt-1 text-white">{event.location}</dd>
+            </div>
+          </dl>
 
-        {event.registerUrl ? (
-          <a
-            href={event.registerUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="justify-self-start rounded-full bg-white px-7 py-3 text-sm font-semibold text-fh-bg transition hover:bg-fh-lilac"
-          >
-            Register →
-          </a>
-        ) : (
-          <a
-            href="#about"
-            className="justify-self-start rounded-full border border-white/20 px-6 py-3 font-mono text-xs tracking-[0.2em] text-white/85 uppercase sm:text-sm transition hover:border-white/60 hover:text-white"
-          >
-            {hero.scrollHint} ↓
-          </a>
+          {event.registerUrl ? (
+            <a
+              href={event.registerUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="justify-self-start rounded-full bg-white px-7 py-3 text-sm font-semibold text-fh-bg transition hover:bg-fh-lilac"
+            >
+              Register →
+            </a>
+          ) : (
+            <a
+              href="#about"
+              className="justify-self-start rounded-full border border-white/20 px-6 py-3 font-mono text-xs tracking-[0.2em] text-white/85 uppercase sm:text-sm transition hover:border-white/60 hover:text-white"
+            >
+              {hero.scrollHint} ↓
+            </a>
+          )}
+        </div>
+
+        {/* Countdown (or whatever is passed in), below a hairline divider */}
+        {children && (
+          <div className="mt-6 border-t border-white/10 pt-8 sm:mt-8 sm:pt-10">{children}</div>
         )}
       </div>
     </section>
