@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { useState } from 'react'
-import { FloatingShapes } from './FloatingShapes'
+import { Mascot } from './mascot/Mascot'
 import { usePointerTracking } from './pointerState'
 import { StudioEnvironment } from './StudioEnvironment'
 
@@ -28,7 +28,7 @@ export default function Scene() {
       <StudioEnvironment />
       {/* A key light for crisp specular highlights on top of the reflections */}
       <directionalLight position={[4, 6, 5]} intensity={1.2} />
-      <FloatingShapes />
+      <Mascot />
     </Canvas>
   )
 }
