@@ -90,12 +90,12 @@ export const countdown = {
   /** Submissions close. TODO: confirm the countdown should end here. */
   end: new Date('2027-03-07T08:00:00-06:00'),
   messages: {
-    before: '> HACKATHON STARTS IN:',
-    beforeTarget: '> TARGET: MARCH 6TH @ 10:30 AM',
-    during: '> HACKING IN PROGRESS...',
-    duringTarget: '> TARGET: SUBMISSIONS CLOSE @ 08:00 AM',
-    after: '> SUBMISSIONS CLOSED',
-    afterTarget: '> HACKING HAS ENDED. SEE YOU NEXT YEAR!',
+    before: 'Hacking starts in',
+    beforeTarget: 'Sat, March 6 · 10:30 AM CST',
+    during: 'Submissions close in',
+    duringTarget: 'Sun, March 7 · 8:00 AM CST',
+    after: 'Submissions closed',
+    afterTarget: 'That’s a wrap — see you next year.',
   },
 } as const
 

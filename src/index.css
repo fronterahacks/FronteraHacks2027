@@ -40,6 +40,14 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
   }
+
+  /* Countdown digits: slide up from below with a quick blur, odometer-style */
+  --animate-digit-in: digit-in 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+
+  @keyframes digit-in {
+    from { transform: translateY(100%); filter: blur(6px); opacity: 0; }
+    to { transform: translateY(0); filter: blur(0); opacity: 1; }
+  }
 }
 
 /* Cyan -> orchid -> coral gradient text, as on the old hero CTA. */

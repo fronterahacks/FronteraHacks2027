@@ -1,7 +1,5 @@
-import { Fragment, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { countdown } from '../data/event'
-import { GlitchText } from './GlitchText'
-import { TerminalWindow } from './Terminal'
 
 const START = countdown.start.getTime()
 const END = countdown.end.getTime()
@@ -13,10 +11,10 @@ function breakdown(ms: number) {
   const total = Math.max(0, Math.floor(ms / 1000))
   const pad = (n: number) => String(n).padStart(2, '0')
   return [
-    { label: 'DAYS', value: pad(Math.floor(total / 86400)) }, // can be 3 digits
-    { label: 'HRS', value: pad(Math.floor((total % 86400) / 3600)) },
-    { label: 'MIN', value: pad(Math.floor((total % 3600) / 60)) },
-    { label: 'SEC', value: pad(total % 60) },
+    { label: 'Days', value: pad(Math.floor(total / 86400)) }, // can be 3 digits
+    { label: 'Hours', value: pad(Math.floor((total % 86400) / 3600)) },
+    { label: 'Minutes', value: pad(Math.floor((total % 3600) / 60)) },
+    { label: 'Seconds', value: pad(total % 60) },
   ]
 }
 
@@ -27,18 +25,31 @@ function getState(now: number): { phase: Phase; remaining: number; progress: num
   return { phase: 'after', remaining: 0, progress: 1 }
 }
 
-const STATUS: Record<Phase, { text: string; target: string; color: string }> = {
-  before: { text: countdown.messages.before, target: countdown.messages.beforeTarget, color: 'text-fh-purple/80' },
-  during: { text: countdown.messages.during, target: countdown.messages.duringTarget, color: 'text-fh-pink' },
-  after: { text: countdown.messages.after, target: countdown.messages.afterTarget, color: 'text-fh-purple' },
+const LABELS: Record<Phase, { lead: string; target: string }> = {
+  before: { lead: countdown.messages.before, target: countdown.messages.beforeTarget },
+  during: { lead: countdown.messages.during, target: countdown.messages.duringTarget },
+  after: { lead: countdown.messages.after, target: countdown.messages.afterTarget },
 }
 
 /**
- * "// COUNTDOWN.exe" terminal from the old site:
- * - before the event: counts down to hacking start
- * - during: counts down to submissions closing, progress bar fills
- * - after: shows the closed message
- * Each digit pair glitch-decodes when its value changes.
+ * One digit in its own clipped slot. When the digit changes, React remounts
+ * the inner span (its `key` is the digit), which replays the slide-up
+ * animation, so each change rolls in like an odometer.
+ */
+function Digit({ value }: { value: string }) {
+  return (
+    <span className="relative inline-block overflow-hidden">
+      <span key={value} className="inline-block motion-safe:animate-digit-in">
+        {value}
+      </span>
+    </span>
+  )
+}
+
+/**
+ * Oversized countdown: giant numerals that roll in as they change, a small
+ * eyebrow label above, unit names below, and a hairline progress bar that
+ * fills during the hacking window.
  */
 export function Countdown() {
   const [now, setNow] = useState(() => Date.now())
@@ -49,55 +60,57 @@ export function Countdown() {
   }, [])
 
   const { phase, remaining, progress } = getState(now)
-  const status = STATUS[phase]
+  const label = LABELS[phase]
   const units = breakdown(remaining)
 
   return (
-    <TerminalWindow title="// COUNTDOWN.exe" className="w-full max-w-md">
-      <div className="flex flex-col items-center gap-5 px-4 py-8 sm:px-6">
-        <p className={`font-mono text-xs tracking-widest motion-safe:animate-blink-slow ${status.color}`}>
-          {status.text}
-        </p>
-
-        <div role="timer" className="flex items-start justify-center gap-1 sm:gap-2">
-          {units.map((unit, i) => (
-            <Fragment key={unit.label}>
-              {i > 0 && (
-                <span
-                  aria-hidden="true"
-                  className="font-mono text-3xl font-black text-fh-purple/50 motion-safe:animate-blink sm:text-4xl"
-                >
-                  :
-                </span>
-              )}
-              <div className="flex min-w-14 flex-col items-center gap-1.5 sm:min-w-16">
-                <GlitchText
-                  text={unit.value}
-                  className="bg-linear-to-b from-white to-fh-lilac bg-clip-text font-mono text-4xl leading-none font-black text-transparent drop-shadow-[0_0_8px_rgb(180_0_255/0.6)] sm:text-5xl"
-                />
-                <span className="font-mono text-[10px] tracking-[0.2em] text-fh-purple/60">{unit.label}</span>
-              </div>
-            </Fragment>
-          ))}
-        </div>
-
-        {/* Progress through the hacking period */}
-        <div
-          role="progressbar"
-          aria-label="Hackathon progress"
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-valuenow={Math.round(progress * 100)}
-          className="h-[3px] w-full overflow-hidden rounded-sm bg-fh-purple/15"
-        >
-          <div
-            className="h-full rounded-sm bg-linear-to-r from-fh-purple via-fh-violet to-fh-pink shadow-[0_0_8px_rgb(180_0_255/0.6)] transition-[width] duration-1000 ease-linear"
-            style={{ width: `${progress * 100}%` }}
-          />
-        </div>
-
-        <p className="text-center font-mono text-[10px] tracking-widest text-fh-purple/50">{status.target}</p>
+    <div className="w-full max-w-6xl">
+      {/* Eyebrow row */}
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 font-mono text-[11px] tracking-[0.2em] text-white/50 uppercase sm:text-xs">
+        <span>
+          <span className="text-fh-purple">// </span>
+          {label.lead}
+        </span>
+        <span>{label.target}</span>
       </div>
-    </TerminalWindow>
+
+      {/* Numerals */}
+      <div role="timer" className="mt-3 grid grid-cols-4 gap-2 sm:gap-6">
+        {units.map((unit) => (
+          <div key={unit.label} className="flex flex-col items-start">
+            <span
+              aria-hidden="true"
+              className="text-[clamp(2.75rem,13vw,10rem)] leading-[0.9] font-semibold tracking-tighter tabular-nums"
+            >
+              {Array.from(unit.value).map((d, i) => (
+                <Digit key={`${unit.label}-${i}`} value={d} />
+              ))}
+            </span>
+            <span className="mt-2 font-mono text-[10px] tracking-[0.2em] text-white/40 uppercase sm:text-xs">
+              {unit.label}
+            </span>
+          </div>
+        ))}
+        {/* Screen readers get one readable sentence instead of digit spans */}
+        <span className="sr-only">
+          {label.lead} {units.map((u) => `${Number(u.value)} ${u.label}`).join(', ')}
+        </span>
+      </div>
+
+      {/* Hairline progress through the hacking window */}
+      <div
+        role="progressbar"
+        aria-label="Hackathon progress"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(progress * 100)}
+        className="mt-6 h-px w-full bg-white/10"
+      >
+        <div
+          className="h-full bg-linear-to-r from-fh-purple via-fh-violet to-fh-pink transition-[width] duration-1000 ease-linear"
+          style={{ width: `${progress * 100}%` }}
+        />
+      </div>
+    </div>
   )
 }
