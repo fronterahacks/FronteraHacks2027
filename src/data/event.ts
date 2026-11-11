@@ -144,20 +144,20 @@ export const about = {
     { label: 'Cost', value: 'Free' },
     { label: 'Open to', value: 'All majors & skill levels' },
   ],
-  pillarsLabel: 'AT FRONTERA HACKS, YOU WILL:',
+  pillarsLabel: 'At Frontera Hacks, you will',
   pillars: [
     {
-      title: 'CONNECT.',
+      title: 'Connect.',
       description: 'Meet developers interested in shaping the future of innovation at Frontera Hacks',
       image: connectImg,
     },
     {
-      title: 'GROW.',
+      title: 'Grow.',
       description: 'Advance your technical and interpersonal skills through our hands-on workshops',
       image: growImg,
     },
     {
-      title: 'BUILD.',
+      title: 'Build.',
       description: 'Develop solutions with the potential to aid and impact our community',
       image: buildImg,
     },
