@@ -5,11 +5,10 @@ import { Fragment, useRef } from 'react'
 import { RevealText } from '../components/RevealText'
 import { SectionHeading } from '../components/SectionHeading'
 import { schedule } from '../data/event'
+import { LIT_LINE } from '../three/timeline/timelineState'
+import { useTimelineAnchors } from '../three/timeline/useTimelineAnchors'
 
 gsap.registerPlugin(useGSAP, ScrollTrigger)
-
-/** Rows "light up" as their top passes this line (share of screen height). */
-export const LIT_LINE = 0.55
 
 /**
  * Schedule as one continuous timeline through both days (no tabs, so the
@@ -21,7 +20,10 @@ export const LIT_LINE = 0.55
  * back up dims it again.
  */
 export function Schedule({ index }: { index: number }) {
+  const section = useRef<HTMLElement>(null)
   const list = useRef<HTMLOListElement>(null)
+  // Share the node dots' page positions with the 3D neon tube.
+  useTimelineAnchors(section, list)
 
   // Set data-lit on each row as it crosses the lit line.
   useGSAP(
@@ -46,7 +48,7 @@ export function Schedule({ index }: { index: number }) {
   )
 
   return (
-    <section id="schedule" className="scroll-mt-20 px-5 py-28 sm:px-8 md:px-12 md:py-40">
+    <section ref={section} id="schedule" className="scroll-mt-20 px-5 py-28 sm:px-8 md:px-12 md:py-40">
       <SectionHeading index={index} label="Schedule" title={schedule.title} />
 
       <RevealText
