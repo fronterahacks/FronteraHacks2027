@@ -27,6 +27,9 @@ const LEGS_FIRST_ROW = 41
 /** Thickness (front-to-back) of each part, in grid units. */
 const DEPTH = { hat: 9, head: 7, hand: 3, body: 5, legs: 3 }
 
+/** Vertical centre of the eyes in centred grid units (+y up); eyes blink around it. */
+export const EYE_CENTER_Y = (GRID_ROWS - 1) / 2 - (EYE_ROWS[0] + EYE_ROWS[1]) / 2
+
 export type MascotParts = {
   body: Voxel[]
   hat: Voxel[]
