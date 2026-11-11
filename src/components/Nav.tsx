@@ -23,11 +23,15 @@ export function Nav() {
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-fh-purple/25 bg-fh-panel backdrop-blur-lg">
+      {/* Three columns: [logo | links | spacer]. The two outer columns are
+          equal width (1fr each), which keeps the links exactly centred in
+          the bar no matter how wide the logo is. Full width (no max-w) so
+          the logo sits at the bar's left edge. */}
       <nav
         aria-label="Main"
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:h-20 md:px-8"
+        className="grid h-16 grid-cols-[1fr_auto_1fr] items-center px-4 md:h-20 md:px-6"
       >
-        <a href="#top" className="shrink-0" aria-label={`${event.name} home`}>
+        <a href="#top" className="justify-self-start" aria-label={`${event.name} home`}>
           <img
             src={mascot}
             alt=""
@@ -46,10 +50,11 @@ export function Nav() {
           ))}
         </ul>
 
-        {/* Mobile menu button */}
+        {/* Mobile menu button (right column). On desktop this column stays
+            empty and just balances the logo column. */}
         <button
           type="button"
-          className="font-mono text-sm tracking-[0.15em] text-white/80 uppercase hover:text-white md:hidden"
+          className="col-start-3 justify-self-end font-mono text-sm tracking-[0.15em] text-white/80 uppercase hover:text-white md:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           onClick={() => setOpen((o) => !o)}
