@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Mascot } from './mascot/Mascot'
 import { usePointerTracking } from './pointerState'
 import { StudioEnvironment } from './StudioEnvironment'
+import { NeonTimeline } from './timeline/NeonTimeline'
 
 /**
  * The full-screen WebGL canvas that sits behind the page content.
@@ -29,6 +30,7 @@ export default function Scene() {
       {/* A key light for crisp specular highlights on top of the reflections */}
       <directionalLight position={[4, 6, 5]} intensity={1.2} />
       <Mascot />
+      <NeonTimeline />
     </Canvas>
   )
 }
