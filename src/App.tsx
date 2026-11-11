@@ -9,7 +9,11 @@ function App() {
 
   return (
     <>
-      <div className="fixed inset-0 -z-10 bg-neutral-950" aria-hidden="true">
+      {/* Gradient shows instantly; the 3D scene fades in on top once loaded. */}
+      <div
+        className="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_50%_45%,#2a1466_0%,#0d0820_55%,#050308_100%)]"
+        aria-hidden="true"
+      >
         <Suspense fallback={null}>
           <Scene />
         </Suspense>
