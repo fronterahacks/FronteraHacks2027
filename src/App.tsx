@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Nav } from './components/Nav'
 import { navLinks } from './data/event'
+import { Hero } from './sections/Hero'
 import { useLenis } from './scroll/useLenis'
 
 // Lazy-load the 3D scene so page content isn't blocked by Three.js.
@@ -24,15 +25,7 @@ function App() {
       <Nav />
 
       <main>
-        <section id="top" className="flex min-h-svh flex-col items-center justify-center gap-4">
-          <h1 className="text-5xl font-bold tracking-tight text-fh-purple text-fh-glow">
-            Frontera Hacks 2027
-          </h1>
-          <p className="text-2xl font-bold">
-            Spark your curiosity at <span className="text-fh-gradient">Frontera Hacks</span>
-          </p>
-          <p className="font-mono text-fh-lilac">&gt; Coming soon. Scroll down.</p>
-        </section>
+        <Hero />
         {/* Temporary placeholder sections, one per nav link, so the links have
             somewhere to go. Each gets replaced by its real component later. */}
         {navLinks.map((link) => (
