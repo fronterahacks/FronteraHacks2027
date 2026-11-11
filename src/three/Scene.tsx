@@ -1,5 +1,6 @@
 import { Canvas } from '@react-three/fiber'
 import { useState } from 'react'
+import { FrontierFinale } from './finale/FrontierFinale'
 import { GsapFrameDriver } from './GsapFrameDriver'
 import { Mascot } from './mascot/Mascot'
 import { usePointerTracking } from './pointerState'
@@ -36,6 +37,7 @@ export default function Scene() {
       <directionalLight position={[4, 6, 5]} intensity={1.2} />
       <Mascot />
       <NeonTimeline />
+      <FrontierFinale />
     </Canvas>
   )
 }
