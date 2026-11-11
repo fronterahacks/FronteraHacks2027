@@ -149,11 +149,4 @@
       animation-iteration-count: 1 !important;
     }
   }
-
-  /* While the custom cursor is active (mouse users, motion allowed), hide
-     the native one everywhere. */
-  html.has-custom-cursor,
-  html.has-custom-cursor * {
-    cursor: none !important;
-  }
 }
