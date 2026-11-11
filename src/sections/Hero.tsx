@@ -6,63 +6,64 @@ import { event, hero } from '../data/event'
 const delay = (seconds: number): CSSProperties => ({ animationDelay: `${seconds}s` })
 
 /**
- * Full-screen hero, modern layout:
- * - content anchored bottom-left, leaving open space for the 3D scene
- * - oversized headline whose lines mask up into view on load
- * - small monospace eyebrow, then a dark glass panel holding the meta row
- *   (subline, date, location, button) and, below a divider, `children`
- *   (the countdown), so everything stays readable over the 3D scene
+ * Hero, in two parts:
+ * 1. Exactly one screen tall: wordmark, eyebrow and the oversized headline
+ *    anchored bottom-left, with nothing else on screen, so the 3D mascot is
+ *    seen whole and unobstructed on arrival.
+ * 2. Just below the fold: a dark glass panel holding the meta row (subline,
+ *    date, location, button) and, below a divider, `children` (the
+ *    countdown). The mascot scatters behind it as you scroll down to it.
  */
 export function Hero({ children }: { children?: ReactNode }) {
   return (
-    <section
-      id="top"
-      className="relative flex min-h-svh flex-col justify-end px-5 pt-28 pb-10 sm:px-8 md:px-12 md:pb-14"
-    >
-      {/* Brand wordmark */}
-      <div className="overflow-hidden">
-        <img
-          src={logo}
-          alt=""
-          width={1278}
-          height={105}
-          className="w-64 opacity-90 motion-safe:animate-rise-in sm:w-80 md:w-96"
-          style={delay(0.1)}
-        />
+    <section id="top" className="relative px-5 sm:px-8 md:px-12">
+      {/* Part 1: the first screen */}
+      <div className="flex min-h-svh flex-col justify-end pt-28 pb-10 md:pb-14">
+        {/* Brand wordmark */}
+        <div className="overflow-hidden">
+          <img
+            src={logo}
+            alt=""
+            width={1278}
+            height={105}
+            className="w-64 opacity-90 motion-safe:animate-rise-in sm:w-80 md:w-96"
+            style={delay(0.1)}
+          />
+        </div>
+
+        {/* Eyebrow */}
+        <p className="mt-8 overflow-hidden font-mono text-xs tracking-[0.25em] text-white/70 uppercase sm:text-sm">
+          <span className="inline-block motion-safe:animate-rise-in" style={delay(0.2)}>
+            <span className="text-fh-purple">// </span>
+            {hero.eyebrow}
+          </span>
+        </p>
+
+        {/* Headline. Each line is clipped (overflow-hidden) so the text slides
+            up from behind an invisible edge. Screen readers get the full name. */}
+        <h1 className="mt-3 text-[clamp(3.5rem,13vw,12rem)] leading-[0.88] font-semibold tracking-tighter">
+          <span className="sr-only">
+            {event.name} {event.year}:{' '}
+          </span>
+          {hero.headline.map((line, i) => (
+            <span key={line.text} className="block overflow-hidden pb-[0.08em]">
+              <span
+                className={`inline-block motion-safe:animate-rise-in ${'highlight' in line ? 'text-fh-gradient' : ''}`}
+                style={delay(0.3 + i * 0.12)}
+              >
+                {line.text}
+              </span>
+            </span>
+          ))}
+        </h1>
       </div>
 
-      {/* Eyebrow */}
-      <p className="mt-8 overflow-hidden font-mono text-xs tracking-[0.25em] text-white/70 uppercase sm:text-sm">
-        <span className="inline-block motion-safe:animate-rise-in" style={delay(0.2)}>
-          <span className="text-fh-purple">// </span>
-          {hero.eyebrow}
-        </span>
-      </p>
-
-      {/* Headline. Each line is clipped (overflow-hidden) so the text slides
-          up from behind an invisible edge. Screen readers get the full name. */}
-      <h1 className="mt-3 text-[clamp(3.5rem,13vw,12rem)] leading-[0.88] font-semibold tracking-tighter">
-        <span className="sr-only">
-          {event.name} {event.year}:{' '}
-        </span>
-        {hero.headline.map((line, i) => (
-          <span key={line.text} className="block overflow-hidden pb-[0.08em]">
-            <span
-              className={`inline-block motion-safe:animate-rise-in ${'highlight' in line ? 'text-fh-gradient' : ''}`}
-              style={delay(0.3 + i * 0.12)}
-            >
-              {line.text}
-            </span>
-          </span>
-        ))}
-      </h1>
-
-      {/* One dark "smoked glass" panel from the subline down through the
+      {/* Part 2: one dark "smoked glass" panel from the subline down through the
           countdown, so the text stays readable when the scattered mascot
           cubes drift behind it. Same layered glass recipe as the nav (blur +
           saturate, top highlight, soft shadow), but tinted dark. */}
       <div
-        className="mt-10 rounded-2xl border border-white/10 bg-fh-bg/55 p-5 shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_12px_40px_rgb(0_0_0/0.45)] backdrop-blur-xl backdrop-saturate-150 motion-safe:animate-fade-in sm:p-6 md:px-8"
+        className="mb-24 rounded-2xl border border-white/10 bg-fh-bg/55 p-5 shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_12px_40px_rgb(0_0_0/0.45)] backdrop-blur-xl backdrop-saturate-150 motion-safe:animate-fade-in sm:p-6 md:px-8"
         style={delay(0.7)}
       >
         {/* Meta row */}
