@@ -1,5 +1,5 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { mascotFx } from './mascotFx'
 import type { Voxel } from './voxels'
@@ -68,8 +68,17 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
     [voxels],
   )
 
-  // Place every cube exactly at its assembled position. Used on mount, and
-  // again whenever the scatter returns to ~0 so the figure is pixel-perfect.
+  // Per-cube colours as a buffer, attached declaratively below. Because it is
+  // part of the JSX, any rebuilt mesh (e.g. after a hot reload) gets the
+  // colours automatically instead of falling back to plain white.
+  const colors = useMemo(() => {
+    const array = new Float32Array(voxels.length * 3)
+    const color = new THREE.Color()
+    voxels.forEach((v, i) => color.set(v.color).toArray(array, i * 3))
+    return array
+  }, [voxels])
+
+  // Place every cube exactly at its assembled position.
   const writeRestPose = (m: THREE.InstancedMesh) => {
     const matrix = new THREE.Matrix4()
     voxels.forEach((v, i) => {
@@ -80,16 +89,9 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
     m.instanceMatrix.needsUpdate = true
   }
 
-  useLayoutEffect(() => {
-    const m = mesh.current
-    if (!m) return
-    writeRestPose(m)
-    const color = new THREE.Color()
-    voxels.forEach((v, i) => m.setColorAt(i, color.set(v.color)))
-    if (m.instanceColor) m.instanceColor.needsUpdate = true
-    m.computeBoundingSphere()
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- writeRestPose only depends on voxels
-  }, [voxels])
+  // Which mesh object has had its rest pose written. Checked every frame,
+  // so a brand-new mesh is laid out before it is ever drawn.
+  const laidOut = useRef<THREE.InstancedMesh | null>(null)
 
   // Scratch objects reused every frame (no garbage per frame).
   const scratch = useMemo(
@@ -105,6 +107,11 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
   useFrame((state) => {
     const m = mesh.current
     if (!m) return
+    if (laidOut.current !== m) {
+      writeRestPose(m)
+      laidOut.current = m
+      wasBurst.current = true // force the scatter logic below to re-evaluate
+    }
     const burst = mascotFx.burst
     // Close enough to assembled: snap every cube exactly home (once), then
     // skip all per-cube work until it scatters again. Without this, tiny
@@ -144,5 +151,9 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
     m.instanceMatrix.needsUpdate = true
   })
 
-  return <instancedMesh ref={mesh} args={[geometry, material, voxels.length]} frustumCulled={false} />
+  return (
+    <instancedMesh ref={mesh} args={[geometry, material, voxels.length]} frustumCulled={false}>
+      <instancedBufferAttribute attach="instanceColor" args={[colors, 3]} />
+    </instancedMesh>
+  )
 }
