@@ -3,6 +3,7 @@ import { Countdown } from './components/Countdown'
 import { Nav } from './components/Nav'
 import { SectionHeading } from './components/SectionHeading'
 import { navLinks, sectionTitles } from './data/event'
+import { About } from './sections/About'
 import { Hero } from './sections/Hero'
 import { useLenis } from './scroll/useLenis'
 
@@ -31,17 +32,21 @@ function App() {
         <Hero>
           <Countdown />
         </Hero>
-        {/* Temporary placeholder sections, one per nav link, each opened with
-            its real heading. The content is added section by section. */}
-        {navLinks.map((link, i) => (
-          <section
-            key={link.href}
-            id={link.href.slice(1)}
-            className="min-h-[80svh] scroll-mt-20 px-5 py-28 sm:px-8 md:px-12 md:py-36"
-          >
-            <SectionHeading index={i + 1} label={link.label} title={sectionTitles[link.href]} />
-          </section>
-        ))}
+        {/* One section per nav link. Finished sections render their own
+            component; the rest are placeholders with just their heading. */}
+        {navLinks.map((link, i) =>
+          link.href === '#about' ? (
+            <About key={link.href} index={i + 1} />
+          ) : (
+            <section
+              key={link.href}
+              id={link.href.slice(1)}
+              className="min-h-[80svh] scroll-mt-20 px-5 py-28 sm:px-8 md:px-12 md:py-36"
+            >
+              <SectionHeading index={i + 1} label={link.label} title={sectionTitles[link.href]} />
+            </section>
+          ),
+        )}
       </main>
     </>
   )

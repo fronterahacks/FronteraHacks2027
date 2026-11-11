@@ -137,6 +137,13 @@ export const about = {
   title: 'About Frontera Hacks',
   description:
     'Frontera Devs is hosting its 4th annual Frontera Hacks, a 24 hour hackathon that aims to foster a community of developers driven to innovate. At Frontera Hacks, we aim to provide an experience for developers of all skill levels to adopt skills taught outside of the classroom, collaborate with like-minded teams, and design projects with the potential to accelerate innovation in the Rio Grande Valley.',
+  /** Quick facts beside the description (all from existing copy / FAQ). */
+  facts: [
+    { label: 'Edition', value: '4th annual' },
+    { label: 'Duration', value: '24 hours' },
+    { label: 'Cost', value: 'Free' },
+    { label: 'Open to', value: 'All majors & skill levels' },
+  ],
   pillarsLabel: 'AT FRONTERA HACKS, YOU WILL:',
   pillars: [
     {
