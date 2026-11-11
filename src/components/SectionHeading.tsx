@@ -1,3 +1,6 @@
+import { useRef } from 'react'
+import { useInView } from '../hooks/useInView'
+import { GlitchText } from './GlitchText'
 import { Reveal } from './Reveal'
 import { RevealText } from './RevealText'
 
@@ -12,16 +15,29 @@ type SectionHeadingProps = {
 
 /**
  * Standard opener for every section: a small monospace label
- * ("// 01 — About", the site's subtle cyber accent) over a large title whose
- * lines mask up into view as the section scrolls in.
+ * ("// 01 — About", the site's subtle cyber accent) that glitch-decodes as it
+ * scrolls into view, over a large title that assembles and ignites letter by
+ * letter as you scroll (RevealText).
  */
 export function SectionHeading({ index, label, title, className = '' }: SectionHeadingProps) {
+  const labelRef = useRef<HTMLParagraphElement>(null)
+  const inView = useInView(labelRef)
+  const labelText = `${String(index).padStart(2, '0')} — ${label}`
+
   return (
     <header className={className}>
       <Reveal>
-        <p className="font-mono text-xs tracking-[0.25em] text-white/70 uppercase sm:text-sm">
-          <span className="text-fh-purple">// </span>
-          {String(index).padStart(2, '0')} — {label}
+        <p ref={labelRef} className="font-mono text-xs tracking-[0.25em] text-white/70 uppercase sm:text-sm">
+          <span className="text-fh-purple" aria-hidden="true">
+            //{' '}
+          </span>
+          <span className="sr-only">{labelText}</span>
+          {/* Empty (a non-breaking space keeps the line height) until in view,
+              then the text "decodes" in. Decorative copy, hidden from screen
+              readers, which get the sr-only text above. */}
+          <span aria-hidden="true">
+            <GlitchText text={inView ? labelText : ' '} stepMs={35} />
+          </span>
         </p>
       </Reveal>
       <RevealText
