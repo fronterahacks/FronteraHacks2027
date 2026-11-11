@@ -3,7 +3,7 @@ import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import { pointerState } from '../pointerState'
-import { buildMascot, EYE_CENTER_Y, GRID_COLS, GRID_ROWS } from './voxels'
+import { buildMascot, EYE_CENTER_Y, GRID_COLS, GRID_ROWS, HAT_BASE_Y } from './voxels'
 import { VoxelPart } from './VoxelPart'
 
 /** Resting pose: turned slightly so its depth shows. */
@@ -13,6 +13,10 @@ const LOOK_YAW = 0.55
 const LOOK_PITCH = 0.25
 /** How far the eyes slide across the face (grid cells). */
 const EYE_TRAVEL = 1.1
+/** Hat tip pose when hovered: lift (cells), tilt sideways and back (radians). */
+const HAT_LIFT = 3.5
+const HAT_TILT = 0.38
+const HAT_BACK = -0.3
 
 /**
  * The Frontera Devs mascot as a glossy 3D voxel figure, built cube-for-pixel
@@ -22,7 +26,8 @@ const EYE_TRAVEL = 1.1
  * headline; on portrait phones it sits centred in the upper half.
  *
  * Behaviour: turns to face the cursor, eyes follow it, blinks every few
- * seconds; idles with a gentle bob and sway when there's no cursor.
+ * seconds, tips its hat when hovered (or tapped); idles with a gentle bob
+ * and sway when there's no cursor.
  */
 export function Mascot() {
   const parts = useMemo(() => buildMascot(), [])
@@ -31,6 +36,7 @@ export function Mascot() {
 
   const body = useRef<THREE.Group>(null)
   const eyes = useRef<THREE.Group>(null)
+  const hat = useRef<THREE.Group>(null)
   const nextBlink = useRef(2)
 
   const portrait = viewport.aspect < 1
@@ -44,7 +50,8 @@ export function Mascot() {
   useFrame((state, delta) => {
     const b = body.current
     const e = eyes.current
-    if (!b || !e) return
+    const h = hat.current
+    if (!b || !e || !h) return
     const t = state.clock.elapsedTime
     const looking = pointerState.active
 
@@ -64,6 +71,21 @@ export function Mascot() {
     e.position.x = THREE.MathUtils.damp(e.position.x, ex, 10, delta)
     e.position.y = THREE.MathUtils.damp(e.position.y, ey, 10, delta)
 
+    // --- Hat tip when the cursor is over the mascot ---
+    // Cursor in world units, compared with the figure's on-screen box.
+    const cursorX = pointerState.x * (viewport.width / 2)
+    const cursorY = pointerState.y * (viewport.height / 2)
+    const hovering =
+      looking &&
+      Math.abs(cursorX - x) < (GRID_COLS * unit) / 2 &&
+      Math.abs(cursorY - y) < (GRID_ROWS * unit) / 2
+    const tip = hovering ? 1 : 0
+    // A slightly slower "settle" than "lift" so it feels like a polite gesture.
+    const speed = hovering ? 7 : 4
+    h.position.y = THREE.MathUtils.damp(h.position.y, HAT_BASE_Y + tip * HAT_LIFT, speed, delta)
+    h.rotation.z = THREE.MathUtils.damp(h.rotation.z, tip * HAT_TILT, speed, delta)
+    h.rotation.x = THREE.MathUtils.damp(h.rotation.x, tip * HAT_BACK, speed, delta)
+
     // --- Blink: squash the eyes flat for ~0.12s every 2.5-6s ---
     if (!reduceMotion && t > nextBlink.current) {
       const blinking = t < nextBlink.current + 0.12
@@ -76,7 +98,12 @@ export function Mascot() {
     <group position={[x, y, 0]} scale={unit}>
       <group ref={body} rotation={[0, REST_YAW, 0]}>
         <VoxelPart voxels={parts.body} />
-        <VoxelPart voxels={parts.hat} />
+        {/* Hat pivots around its brim so the tip looks natural */}
+        <group ref={hat} position={[0, HAT_BASE_Y, 0]}>
+          <group position={[0, -HAT_BASE_Y, 0]}>
+            <VoxelPart voxels={parts.hat} />
+          </group>
+        </group>
         {/* Eyes pivot around their own centre so blinking squashes in place */}
         <group position={[0, EYE_CENTER_Y, 0]}>
           <group ref={eyes}>

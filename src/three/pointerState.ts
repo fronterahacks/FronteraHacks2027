@@ -27,9 +27,12 @@ export function usePointerTracking() {
     }
 
     window.addEventListener('pointermove', onMove, { passive: true })
+    // Taps on touch screens don't fire pointermove; count them too.
+    window.addEventListener('pointerdown', onMove, { passive: true })
     document.documentElement.addEventListener('pointerleave', onLeave)
     return () => {
       window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerdown', onMove)
       document.documentElement.removeEventListener('pointerleave', onLeave)
     }
   }, [])
