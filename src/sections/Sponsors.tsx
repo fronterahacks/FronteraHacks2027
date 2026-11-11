@@ -1,3 +1,4 @@
+import { Magnetic } from '../components/Magnetic'
 import { Reveal } from '../components/Reveal'
 import { RevealText } from '../components/RevealText'
 import { SectionHeading } from '../components/SectionHeading'
@@ -49,15 +50,17 @@ export function Sponsors({ index }: { index: number }) {
           <h3 className="max-w-2xl text-3xl leading-[1.05] font-semibold tracking-tighter text-balance sm:text-4xl md:text-5xl">
             {sponsors.cta.title}
           </h3>
-          <a
-            href={sponsors.cta.href}
-            className="group inline-flex shrink-0 items-center gap-3 self-start rounded-full bg-white px-8 py-4 text-base font-semibold text-fh-bg transition-colors hover:bg-fh-lilac md:self-auto"
-          >
-            {sponsors.cta.button}
-            <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1.5">
-              →
-            </span>
-          </a>
+          <Magnetic className="shrink-0 self-start md:self-auto">
+            <a
+              href={sponsors.cta.href}
+              className="group inline-flex shrink-0 items-center gap-3 rounded-full bg-white px-8 py-4 text-base font-semibold text-fh-bg transition-colors hover:bg-fh-lilac"
+            >
+              {sponsors.cta.button}
+              <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1.5">
+                →
+              </span>
+            </a>
+          </Magnetic>
         </div>
       </Reveal>
     </section>

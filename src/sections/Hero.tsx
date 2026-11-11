@@ -1,5 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react'
 import logo from '../assets/brand/frontera-hacks-logo.png'
+import { Magnetic } from '../components/Magnetic'
 import { event, hero } from '../data/event'
 
 /** Stagger helper: each revealed line starts a bit after the previous one. */
@@ -81,23 +82,25 @@ export function Hero({ children }: { children?: ReactNode }) {
             </div>
           </dl>
 
-          {event.registerUrl ? (
-            <a
-              href={event.registerUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="justify-self-start rounded-full bg-white px-7 py-3 text-sm font-semibold text-fh-bg transition hover:bg-fh-lilac"
-            >
-              Register →
-            </a>
-          ) : (
-            <a
-              href="#about"
-              className="justify-self-start rounded-full border border-white/20 px-6 py-3 font-mono text-xs tracking-[0.2em] text-white/85 uppercase sm:text-sm transition hover:border-white/60 hover:text-white"
-            >
-              {hero.scrollHint} ↓
-            </a>
-          )}
+          <Magnetic className="justify-self-start">
+            {event.registerUrl ? (
+              <a
+                href={event.registerUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-block rounded-full bg-white px-7 py-3 text-sm font-semibold text-fh-bg transition hover:bg-fh-lilac"
+              >
+                Register →
+              </a>
+            ) : (
+              <a
+                href="#about"
+                className="inline-block rounded-full border border-white/20 px-6 py-3 font-mono text-xs tracking-[0.2em] text-white/85 uppercase sm:text-sm transition hover:border-white/60 hover:text-white"
+              >
+                {hero.scrollHint} ↓
+              </a>
+            )}
+          </Magnetic>
         </div>
 
         {/* Countdown (or whatever is passed in), below a hairline divider */}

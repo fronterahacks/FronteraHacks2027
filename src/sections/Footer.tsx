@@ -1,4 +1,5 @@
 import footerLogo from '../assets/brand/frontera-hacks-footer-logo.png'
+import { Magnetic } from '../components/Magnetic'
 import { Reveal } from '../components/Reveal'
 import { RevealText } from '../components/RevealText'
 import { event, footer, socials } from '../data/event'
@@ -40,17 +41,19 @@ export function Footer() {
             {event.dateLabel} <span className="mx-2 text-fh-purple">·</span> {event.location}
           </p>
           {cta && (
-            <a
-              href={cta.href}
-              target="_blank"
-              rel="noreferrer"
-              className="group inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-base font-semibold text-fh-bg transition-colors hover:bg-fh-lilac"
-            >
-              {cta.label}
-              <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1.5">
-                →
-              </span>
-            </a>
+            <Magnetic>
+              <a
+                href={cta.href}
+                target="_blank"
+                rel="noreferrer"
+                className="group inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-base font-semibold text-fh-bg transition-colors hover:bg-fh-lilac"
+              >
+                {cta.label}
+                <span aria-hidden="true" className="transition-transform duration-300 group-hover:translate-x-1.5">
+                  →
+                </span>
+              </a>
+            </Magnetic>
           )}
         </Reveal>
         {/* The lower half of this screen is the 3D horizon's stage. */}
