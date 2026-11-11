@@ -1,6 +1,7 @@
 import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
+import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import { LIT_LINE, timelineState } from './timelineState'
 
 /** Tube thickness in screen pixels (core line, and the soft glow around it). */
@@ -115,6 +116,7 @@ function buildPathPx(): THREE.Vector2[] | null {
  */
 export function NeonTimeline() {
   const viewport = useThree((s) => s.viewport)
+  const reduceMotion = usePrefersReducedMotion()
   const group = useRef<THREE.Group>(null)
   const core = useRef<THREE.Mesh>(null)
   const halo = useRef<THREE.Mesh>(null)
@@ -246,7 +248,8 @@ export function NeonTimeline() {
       }
       u.uHead.value = lo / (ys.length - 1)
     }
-    u.uTime.value = state.clock.elapsedTime
+    // The shimmer flows on its own over time; hold it still for reduced motion.
+    u.uTime.value = reduceMotion ? 0 : state.clock.elapsedTime
 
     // --- Node flares: faint before the pulse, flash as it arrives, then a
     // steady glow that the flash fades into as the pulse moves on ---
