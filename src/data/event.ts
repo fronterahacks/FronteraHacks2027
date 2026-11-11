@@ -9,7 +9,7 @@
  */
 
 import buildImg from '../assets/pillars/build.png'
-import connectImg from '../assets/pillars/connect.png'
+import connectImg from '../assets/pillars/connect.webp'
 import growImg from '../assets/pillars/grow.webp'
 import discordIcon from '../assets/social/discord.svg'
 import instagramIcon from '../assets/social/instagram.svg'
