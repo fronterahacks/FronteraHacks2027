@@ -2,9 +2,15 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
+import { pointerState } from './pointerState'
 
 type Kind = 'torusKnot' | 'torus' | 'sphere' | 'roundedBox' | 'capsule' | 'icosahedron'
 type Finish = 'chrome' | 'glass' | 'gloss'
+
+/** How close (world units) the cursor must be to push a shape. */
+const PUSH_RADIUS = 2.6
+/** Furthest a shape can be shoved from its resting spot. */
+const PUSH_DISTANCE = 1.3
 
 type ShapeConfig = {
   kind: Kind
@@ -90,18 +96,48 @@ function Shape({ config, index }: { config: ShapeConfig; index: number }) {
   const baseX = config.x * viewport.width
   const baseY = config.y * viewport.height
 
+  // How far the cursor has currently shoved this shape (springs back to 0).
+  const push = useRef(new THREE.Vector2())
+
   useFrame((state, delta) => {
     const mesh = ref.current
     if (!mesh) return
     const t = state.clock.elapsedTime
+
     // Gentle float: slow up/down drift plus a slight sideways sway.
-    mesh.position.set(
-      baseX + Math.cos(t * 0.4 + seed) * 0.08,
-      baseY + Math.sin(t * 0.6 + seed) * 0.18,
-      config.z,
-    )
-    mesh.rotation.x += delta * 0.15 * spin
-    mesh.rotation.y += delta * 0.22 * spin
+    const floatX = baseX + Math.cos(t * 0.4 + seed) * 0.08
+    const floatY = baseY + Math.sin(t * 0.6 + seed) * 0.18
+
+    // --- Cursor push ---
+    // Where the cursor is in the 3D world at this shape's depth. Further
+    // shapes need a bigger factor because perspective spreads them out.
+    let targetX = 0
+    let targetY = 0
+    if (pointerState.active) {
+      const depth = (state.camera.position.z - config.z) / state.camera.position.z
+      const cursorX = pointerState.x * (viewport.width / 2) * depth
+      const cursorY = pointerState.y * (viewport.height / 2) * depth
+      const dx = floatX - cursorX
+      const dy = floatY - cursorY
+      const dist = Math.hypot(dx, dy)
+      const radius = PUSH_RADIUS * fit
+      if (dist < radius && dist > 0.0001) {
+        // Closer cursor = stronger shove, straight away from the cursor.
+        const strength = (1 - dist / radius) * PUSH_DISTANCE * fit
+        targetX = (dx / dist) * strength
+        targetY = (dy / dist) * strength
+      }
+    }
+    // Spring toward the target (damp = smooth, frame-rate independent).
+    push.current.x = THREE.MathUtils.damp(push.current.x, targetX, 5, delta)
+    push.current.y = THREE.MathUtils.damp(push.current.y, targetY, 5, delta)
+
+    mesh.position.set(floatX + push.current.x, floatY + push.current.y, config.z)
+
+    // Spin faster while being pushed, like it was actually knocked.
+    const knock = 1 + push.current.length() * 3
+    mesh.rotation.x += delta * 0.15 * spin * knock
+    mesh.rotation.y += delta * 0.22 * spin * knock
   })
 
   return (
@@ -117,8 +153,19 @@ function Shape({ config, index }: { config: ShapeConfig; index: number }) {
 
 /** The hero's glossy floating shapes. */
 export function FloatingShapes() {
+  const group = useRef<THREE.Group>(null)
+
+  // The whole arrangement tilts slightly toward the cursor (parallax depth).
+  useFrame((_, delta) => {
+    if (!group.current) return
+    const tx = pointerState.active ? -pointerState.y * 0.08 : 0
+    const ty = pointerState.active ? pointerState.x * 0.12 : 0
+    group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, tx, 3, delta)
+    group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, ty, 3, delta)
+  })
+
   return (
-    <group>
+    <group ref={group}>
       {SHAPES.map((config, i) => (
         <Shape key={i} config={config} index={i} />
       ))}

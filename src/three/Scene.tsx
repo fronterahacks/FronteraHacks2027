@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber'
 import { useState } from 'react'
 import { FloatingShapes } from './FloatingShapes'
+import { usePointerTracking } from './pointerState'
 import { StudioEnvironment } from './StudioEnvironment'
 
 /**
@@ -11,6 +12,7 @@ import { StudioEnvironment } from './StudioEnvironment'
  */
 export default function Scene() {
   const [ready, setReady] = useState(false)
+  usePointerTracking()
 
   return (
     <Canvas
