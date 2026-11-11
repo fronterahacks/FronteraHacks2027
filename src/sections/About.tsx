@@ -91,7 +91,7 @@ function PillarCard({ pillar, index }: { pillar: Pillar; index: number }) {
         width={176}
         height={176}
         loading="lazy"
-        className="mt-6 size-24 origin-left rounded-full object-cover ring-1 ring-white/15 transition-[transform,box-shadow] duration-500 ease-out group-hover:scale-110 group-hover:shadow-[0_0_0_2px_#b400ff,0_0_32px_rgb(180_0_255/0.6)] sm:size-28"
+        className="mt-6 size-32 origin-left rounded-full object-cover ring-1 ring-white/15 transition-[transform,box-shadow] duration-500 ease-out group-hover:scale-110 group-hover:shadow-[0_0_0_2px_#b400ff,0_0_32px_rgb(180_0_255/0.6)] lg:size-40"
       />
       <h3 className="mt-6 text-5xl font-semibold tracking-tighter sm:text-6xl">
         <GlitchText text={pillar.title} replay={replay} stepMs={45} />
