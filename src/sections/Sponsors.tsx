@@ -101,9 +101,16 @@ function SponsorCard({ sponsor, wide }: { sponsor: Sponsor; wide: boolean }) {
   )
 
   return sponsor.url ? (
-    <a href={sponsor.url} target="_blank" rel="noreferrer" className={className} {...tilt}>
+    <a
+      href={sponsor.url}
+      target="_blank"
+      rel="noreferrer"
+      className={`${className} outline-none focus-visible:ring-2 focus-visible:ring-fh-purple focus-visible:ring-offset-4 focus-visible:ring-offset-fh-bg`}
+      {...tilt}
+    >
       {glare}
       {content}
+      <span className="sr-only"> (opens in a new tab)</span>
     </a>
   ) : (
     <div className={className} {...tilt}>

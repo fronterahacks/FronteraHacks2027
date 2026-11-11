@@ -275,8 +275,8 @@ export const sponsors = {
   thanksLabel: 'With thanks to',
   items: [
     // Logo extracted from a screenshot (scripts/extract-white-logo.mjs).
-    // TODO: swap for an official SVG logo, and add the website link.
-    { name: 'McAllen Chamber of Commerce', url: null, logo: mcallenChamberLogo },
+    // TODO: swap for an official SVG logo.
+    { name: 'McAllen Chamber of Commerce', url: 'https://mcallenchamber.com/', logo: mcallenChamberLogo },
   ] satisfies Sponsor[],
   cta: {
     prompt: '> Want to help make this event a reality?',
