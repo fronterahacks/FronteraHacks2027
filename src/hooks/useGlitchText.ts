@@ -13,8 +13,11 @@ function randomChar() {
  * characters scramble and then lock in left to right, one every `stepMs`.
  * Spaces stay spaces so words keep their shape. With reduced motion on,
  * the real text is returned immediately.
+ *
+ * Change `replay` (e.g. increment a counter on hover) to re-run the effect
+ * on the same text.
  */
-export function useGlitchText(text: string, stepMs = 40) {
+export function useGlitchText(text: string, stepMs = 40, replay = 0) {
   const reduceMotion = usePrefersReducedMotion()
   const [display, setDisplay] = useState(text)
 
@@ -35,7 +38,7 @@ export function useGlitchText(text: string, stepMs = 40) {
     }, stepMs)
 
     return () => window.clearInterval(id)
-  }, [text, stepMs, reduceMotion])
+  }, [text, stepMs, reduceMotion, replay])
 
   return reduceMotion ? text : display
 }

@@ -1,7 +1,9 @@
+import { useState } from 'react'
+import { GlitchText } from '../components/GlitchText'
 import { Reveal } from '../components/Reveal'
 import { RevealText } from '../components/RevealText'
 import { SectionHeading } from '../components/SectionHeading'
-import { about } from '../data/event'
+import { about, type Pillar } from '../data/event'
 
 /**
  * About: numbered heading, then an editorial two-column layout on large
@@ -48,26 +50,52 @@ export function About({ index }: { index: number }) {
 
         <Reveal stagger={0.12} className="mt-10 grid gap-14 md:grid-cols-3 md:gap-8 lg:gap-12">
           {about.pillars.map((pillar, i) => (
-            <article key={pillar.title} className="border-t border-white/10 pt-6">
-              <div className="flex items-start justify-between">
-                <span className="font-mono text-sm tracking-[0.2em] text-fh-purple">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <img
-                  src={pillar.image}
-                  alt=""
-                  width={176}
-                  height={176}
-                  loading="lazy"
-                  className="size-24 rounded-full object-cover ring-1 ring-white/15 sm:size-28"
-                />
-              </div>
-              <h3 className="mt-8 text-5xl font-semibold tracking-tighter sm:text-6xl">{pillar.title}</h3>
-              <p className="mt-4 max-w-sm text-lg text-white/70">{pillar.description}</p>
-            </article>
+            <PillarCard key={pillar.title} pillar={pillar} index={i + 1} />
           ))}
         </Reveal>
       </div>
     </section>
+  )
+}
+
+/**
+ * One pillar. On hover or keyboard focus: the photo zooms with a neon ring,
+ * the number turns pink, a gradient line draws across the top edge, and the
+ * title glitch-decodes.
+ */
+function PillarCard({ pillar, index }: { pillar: Pillar; index: number }) {
+  const [replay, setReplay] = useState(0)
+  const glitch = () => setReplay((n) => n + 1)
+
+  return (
+    <article
+      tabIndex={0}
+      onMouseEnter={glitch}
+      onFocus={glitch}
+      className="group relative border-t border-white/10 pt-6 outline-none focus-visible:ring-2 focus-visible:ring-fh-purple/60 focus-visible:ring-offset-8 focus-visible:ring-offset-fh-bg"
+    >
+      {/* Gradient line that draws over the hairline on hover */}
+      <span
+        aria-hidden="true"
+        className="absolute -top-px left-0 h-px w-0 bg-linear-to-r from-fh-purple via-fh-pink to-transparent transition-[width] duration-700 ease-out group-hover:w-full group-focus-visible:w-full"
+      />
+      <div className="flex items-start justify-between">
+        <span className="font-mono text-sm tracking-[0.2em] text-fh-purple transition-colors duration-300 group-hover:text-fh-pink">
+          {String(index).padStart(2, '0')}
+        </span>
+        <img
+          src={pillar.image}
+          alt=""
+          width={176}
+          height={176}
+          loading="lazy"
+          className="size-24 rounded-full object-cover ring-1 ring-white/15 transition-[transform,box-shadow] duration-500 ease-out group-hover:scale-110 group-hover:shadow-[0_0_0_2px_#b400ff,0_0_32px_rgb(180_0_255/0.6)] sm:size-28"
+        />
+      </div>
+      <h3 className="mt-8 text-5xl font-semibold tracking-tighter sm:text-6xl">
+        <GlitchText text={pillar.title} replay={replay} stepMs={45} />
+      </h3>
+      <p className="mt-4 max-w-sm text-lg text-white/70">{pillar.description}</p>
+    </article>
   )
 }
