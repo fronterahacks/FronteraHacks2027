@@ -1,1 +1,44 @@
 @import "tailwindcss";
+
+/*
+ * Frontera Hacks theme tokens, taken from the placeholder site (css/base.css).
+ * Every --color-fh-* variable becomes Tailwind classes automatically,
+ * e.g. --color-fh-purple -> bg-fh-purple, text-fh-purple, border-fh-purple.
+ * "fh-" keeps our colours apart from Tailwind's built-in palette.
+ */
+@theme {
+  /* Backgrounds */
+  --color-fh-bg: #050508;               /* page background, near black */
+  --color-fh-panel: rgb(5 5 20 / 0.8);  /* cards, nav, terminal panels */
+
+  /* Neon */
+  --color-fh-purple: #b400ff;           /* primary neon: headings, borders, glows */
+  --color-fh-violet: #6333ff;           /* grid lines, secondary accents */
+  --color-fh-pink: #ff00c8;             /* hot accent ("hacking in progress") */
+  --color-fh-lilac: #c084fc;            /* soft text, number gradients */
+  --color-fh-border: rgb(180 0 255 / 0.2); /* card / panel borders */
+
+  /* Accent gradient stops ("Frontera Hacks" gradient text) */
+  --color-fh-cyan: #12c2e9;
+  --color-fh-orchid: #c471ed;
+  --color-fh-coral: #f64f59;
+}
+
+/* Cyan -> orchid -> coral gradient text, as on the old hero CTA. */
+@utility text-fh-gradient {
+  background-image: linear-gradient(90deg, var(--color-fh-cyan), var(--color-fh-orchid) 56%, var(--color-fh-coral));
+  background-clip: text;
+  color: transparent;
+}
+
+/* Neon glow used on section headings. */
+@utility text-fh-glow {
+  text-shadow: 0 0 3px rgb(180 0 255 / 0.8);
+}
+
+@layer base {
+  html {
+    background-color: var(--color-fh-bg);
+    color: white;
+  }
+}
