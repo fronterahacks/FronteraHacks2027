@@ -79,20 +79,21 @@ function PillarCard({ pillar, index }: { pillar: Pillar; index: number }) {
         aria-hidden="true"
         className="absolute -top-px left-0 h-px w-0 bg-linear-to-r from-fh-purple via-fh-pink to-transparent transition-[width] duration-700 ease-out group-hover:w-full group-focus-visible:w-full"
       />
-      <div className="flex items-start justify-between">
-        <span className="font-mono text-sm tracking-[0.2em] text-fh-purple transition-colors duration-300 group-hover:text-fh-pink">
-          {String(index).padStart(2, '0')}
-        </span>
-        <img
-          src={pillar.image}
-          alt=""
-          width={176}
-          height={176}
-          loading="lazy"
-          className="size-24 rounded-full object-cover ring-1 ring-white/15 transition-[transform,box-shadow] duration-500 ease-out group-hover:scale-110 group-hover:shadow-[0_0_0_2px_#b400ff,0_0_32px_rgb(180_0_255/0.6)] sm:size-28"
-        />
-      </div>
-      <h3 className="mt-8 text-5xl font-semibold tracking-tighter sm:text-6xl">
+      {/* Everything left-aligned in one column so the photo sits with its
+          title and text (on wide cards, pushing it to the right edge left
+          it floating far from them). */}
+      <span className="block font-mono text-sm tracking-[0.2em] text-fh-purple transition-colors duration-300 group-hover:text-fh-pink">
+        {String(index).padStart(2, '0')}
+      </span>
+      <img
+        src={pillar.image}
+        alt=""
+        width={176}
+        height={176}
+        loading="lazy"
+        className="mt-6 size-24 origin-left rounded-full object-cover ring-1 ring-white/15 transition-[transform,box-shadow] duration-500 ease-out group-hover:scale-110 group-hover:shadow-[0_0_0_2px_#b400ff,0_0_32px_rgb(180_0_255/0.6)] sm:size-28"
+      />
+      <h3 className="mt-6 text-5xl font-semibold tracking-tighter sm:text-6xl">
         <GlitchText text={pillar.title} replay={replay} stepMs={45} />
       </h3>
       <p className="mt-4 max-w-sm text-lg text-white/70">{pillar.description}</p>
