@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
 import { scrollState } from '../../scroll/scrollState'
 import { pointerState } from '../pointerState'
-import { mascotFx } from './mascotFx'
+import { createMascotFx } from './mascotFx'
 import { buildMascot, EYE_CENTER_Y, GRID_COLS, GRID_ROWS, HAT_BASE_Y } from './voxels'
 import { VoxelPart } from './VoxelPart'
 
@@ -59,6 +59,8 @@ export function Mascot() {
   const hat = useRef<THREE.Group>(null)
   const root = useRef<THREE.Group>(null)
   const scrollSpeed = useRef(0)
+  // This mascot's own effect values, read by its VoxelParts each frame.
+  const fx = useRef(createMascotFx())
   const nextBlink = useRef(2)
 
   const portrait = viewport.aspect < 1
@@ -97,16 +99,16 @@ export function Mascot() {
     scrollSpeed.current = THREE.MathUtils.damp(scrollSpeed.current, raw, 6, delta)
     const kick = Math.abs(scrollSpeed.current) * FLICK_BOOST * (1 - byPosition)
 
-    mascotFx.burst = reduceMotion ? 0 : Math.min(1, byPosition + kick)
-    mascotFx.direction = scrollSpeed.current
+    fx.current.burst = reduceMotion ? 0 : Math.min(1, byPosition + kick)
+    fx.current.direction = scrollSpeed.current
 
     // Fade out once you've scrolled past the hero (#top), measured from where
     // its bottom edge is on screen, so it adapts to the panel's real height.
     const hero = document.getElementById('top')
     const heroBottom = hero ? hero.getBoundingClientRect().bottom : Infinity
-    mascotFx.fade = THREE.MathUtils.smoothstep(1 - heroBottom / (window.innerHeight * FADE_ZONE), 0, 1)
+    fx.current.fade = THREE.MathUtils.smoothstep(1 - heroBottom / (window.innerHeight * FADE_ZONE), 0, 1)
     // Fully faded: stop drawing it at all (saves GPU work further down).
-    r.visible = mascotFx.fade < 0.999
+    r.visible = fx.current.fade < 0.999
 
     // --- Turn toward the cursor (or idle sway) ---
     const idleSway = reduceMotion ? 0 : Math.sin(t * 0.5) * 0.12
@@ -132,7 +134,7 @@ export function Mascot() {
       looking &&
       Math.abs(cursorX - x) < (GRID_COLS * unit) / 2 &&
       Math.abs(cursorY - rootY) < (GRID_ROWS * unit) / 2 &&
-      mascotFx.burst < 0.1 // no hat tip mid-explosion
+      fx.current.burst < 0.1 // no hat tip mid-explosion
     const tip = hovering ? 1 : 0
     // A slightly slower "settle" than "lift" so it feels like a polite gesture.
     const speed = hovering ? 7 : 4
@@ -151,18 +153,18 @@ export function Mascot() {
   return (
     <group ref={root} position={[x, y, 0]} scale={unit}>
       <group ref={body} rotation={[0, REST_YAW, 0]}>
-        <VoxelPart voxels={parts.body} />
+        <VoxelPart voxels={parts.body} fx={fx} />
         {/* Hat pivots around its brim so the tip looks natural */}
         <group ref={hat} position={[0, HAT_BASE_Y, 0]}>
           <group position={[0, -HAT_BASE_Y, 0]}>
-            <VoxelPart voxels={parts.hat} />
+            <VoxelPart voxels={parts.hat} fx={fx} />
           </group>
         </group>
         {/* Eyes pivot around their own centre so blinking squashes in place */}
         <group position={[0, EYE_CENTER_Y, 0]}>
           <group ref={eyes}>
             <group position={[0, -EYE_CENTER_Y, 0]}>
-              <VoxelPart voxels={parts.eyes} />
+              <VoxelPart voxels={parts.eyes} fx={fx} />
             </group>
           </group>
         </group>

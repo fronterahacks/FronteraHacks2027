@@ -1,7 +1,7 @@
 import { useFrame } from '@react-three/fiber'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, type RefObject } from 'react'
 import * as THREE from 'three'
-import { mascotFx } from './mascotFx'
+import type { MascotFx } from './mascotFx'
 import type { Voxel } from './voxels'
 
 /** Cubes are slightly smaller than a grid cell, leaving thin gaps whose
@@ -30,11 +30,11 @@ function hash(n: number) {
  * Draws a list of voxels as ONE InstancedMesh: a single GPU draw call for
  * hundreds of cubes, each with its own position, depth and colour.
  *
- * While mascotFx.burst > 0 (scrolling away from the hero), every cube flies
+ * While fx.burst > 0 (e.g. scrolling away from the hero), every cube flies
  * outward along its own direction, tumbles, and keeps drifting gently; it
  * glides back into place as burst returns to 0.
  */
-export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
+export function VoxelPart({ voxels, fx }: { voxels: Voxel[]; fx: RefObject<MascotFx> }) {
   const mesh = useRef<THREE.InstancedMesh>(null)
   const wasBurst = useRef(false)
 
@@ -112,7 +112,7 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
       laidOut.current = m
       wasBurst.current = true // force the scatter logic below to re-evaluate
     }
-    const burst = mascotFx.burst
+    const burst = fx.current.burst
     // Close enough to assembled: snap every cube exactly home (once), then
     // skip all per-cube work until it scatters again. Without this, tiny
     // leftover values leave cubes slightly tilted/squashed at the top.
@@ -125,14 +125,14 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
     }
     wasBurst.current = true
     // Fully faded out (scrolled past the hero): hidden, so skip the work.
-    if (mascotFx.fade >= 0.999) return
+    if (fx.current.fade >= 0.999) return
 
     const { matrix, pos, quat, scale } = scratch
     const t = state.clock.elapsedTime
-    const trail = -mascotFx.direction * 6 // cubes trail opposite the scroll
+    const trail = -fx.current.direction * 6 // cubes trail opposite the scroll
 
     // Past the hero, cubes dissolve: drift further out while shrinking to 0.
-    const fade = mascotFx.fade
+    const fade = fx.current.fade
     const shrink = 1 - fade
 
     voxels.forEach((v, i) => {
