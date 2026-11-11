@@ -12,6 +12,14 @@ const WIGGLE_PX = 12
 const HEAD_PX = 46
 /** How many points along the curve to sample for the pulse lookup. */
 const SAMPLES = 600
+/** Node flare radius in pixels (day markers get a bigger one). */
+const FLARE_PX = { day: 22, event: 14 }
+/** Most nodes we allocate flares for. */
+const MAX_NODES = 64
+const FLARE_COLOR = new THREE.Color('#ff3fd2')
+// Scratch objects reused every frame (no garbage per frame).
+const flareScratch = new THREE.Matrix4()
+const colorScratch = new THREE.Color()
 
 // Shared by the core and halo shaders. `uHead` = how far along the tube the
 // pulse is (0 = start, 1 = end); `uHeadWidth` = pulse length in the same units.
@@ -102,7 +110,8 @@ function buildPathPx(): THREE.Vector2[] | null {
  *
  * A light pulse travels along it: wherever the tube crosses LIT_LINE (the
  * same line the schedule rows light up on) is the pulse head; the tube is
- * lit behind it and dim ahead of it.
+ * lit behind it and dim ahead of it. Each node has a soft flare behind its
+ * HTML dot that flashes as the pulse arrives, then settles into a glow.
  */
 export function NeonTimeline() {
   const viewport = useThree((s) => s.viewport)
@@ -136,6 +145,32 @@ export function NeonTimeline() {
   // World-space height of the curve at SAMPLES evenly spaced points along it
   // (arc length, the same spacing TubeGeometry's uv.x uses).
   const samplesY = useRef<Float32Array>(new Float32Array(0))
+
+  // Node flares: one instanced, additive sphere per node, glowing behind the
+  // HTML dot. nodeAlong = each node's position along the tube (0..1).
+  const flares = useRef<THREE.InstancedMesh>(null)
+  const nodeAlong = useRef<number[]>([])
+  const nodeBase = useRef<{ pos: THREE.Vector3; size: number }[]>([])
+  const flareGeometry = useMemo(() => new THREE.SphereGeometry(1, 20, 20), [])
+  const flareColors = useMemo(() => new Float32Array(MAX_NODES * 3), [])
+  const flareMaterial = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        transparent: true,
+        opacity: 0.55,
+        blending: THREE.AdditiveBlending,
+        depthWrite: false,
+        toneMapped: false,
+      }),
+    [],
+  )
+  useEffect(
+    () => () => {
+      flareGeometry.dispose()
+      flareMaterial.dispose()
+    },
+    [flareGeometry, flareMaterial],
+  )
 
   useEffect(
     () => () => {
@@ -178,6 +213,20 @@ export function NeonTimeline() {
         for (let i = 0; i <= SAMPLES; i++) ys[i] = curve.getPointAt(i / SAMPLES).y
         samplesY.current = ys
         u.uHeadWidth.value = (HEAD_PX * pxToWorld) / curve.getLength()
+
+        // Each node's place along the tube: the first sample at/below its height.
+        const along: number[] = []
+        const base: { pos: THREE.Vector3; size: number }[] = []
+        timelineState.nodes.slice(0, MAX_NODES).forEach((node) => {
+          const pos = toWorld(new THREE.Vector2(node.x, node.y))
+          let i = 0
+          while (i < SAMPLES && ys[i] > pos.y) i++
+          along.push(i / SAMPLES)
+          base.push({ pos, size: FLARE_PX[node.kind] * pxToWorld })
+        })
+        nodeAlong.current = along
+        nodeBase.current = base
+        if (flares.current) flares.current.count = along.length
       }
     }
 
@@ -199,6 +248,26 @@ export function NeonTimeline() {
     }
     u.uTime.value = state.clock.elapsedTime
 
+    // --- Node flares: faint before the pulse, flash as it arrives, then a
+    // steady glow that the flash fades into as the pulse moves on ---
+    const f = flares.current
+    if (f) {
+      const head = u.uHead.value
+      const fade = u.uHeadWidth.value * 6 // flash fades over ~6 head-lengths
+      nodeAlong.current.forEach((along, i) => {
+        const passed = head >= along
+        const flash = passed ? Math.exp(-(head - along) / fade) : 0
+        const intensity = (passed ? 0.45 : 0.08) + flash * 1.6
+        const { pos, size } = nodeBase.current[i]
+        flareScratch.makeScale(size * (1 + flash), size * (1 + flash), size * (1 + flash))
+        flareScratch.setPosition(pos)
+        f.setMatrixAt(i, flareScratch)
+        f.setColorAt(i, colorScratch.copy(FLARE_COLOR).multiplyScalar(intensity))
+      })
+      f.instanceMatrix.needsUpdate = true
+      if (f.instanceColor) f.instanceColor.needsUpdate = true
+    }
+
     // Scroll with the page.
     g.position.y = (window.scrollY / H) * viewport.height
 
@@ -212,6 +281,16 @@ export function NeonTimeline() {
     <group ref={group}>
       <mesh ref={halo} material={haloMaterial} renderOrder={1} />
       <mesh ref={core} material={coreMaterial} renderOrder={2} />
+      <instancedMesh
+        ref={flares}
+        args={[flareGeometry, flareMaterial, MAX_NODES]}
+        count={0}
+        frustumCulled={false}
+        renderOrder={3}
+      >
+        {/* Allocated up front so colours work from the first frame */}
+        <instancedBufferAttribute attach="instanceColor" args={[flareColors, 3]} />
+      </instancedMesh>
     </group>
   )
 }
