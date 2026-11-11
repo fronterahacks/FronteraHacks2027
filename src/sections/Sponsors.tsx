@@ -6,7 +6,8 @@ import { sponsors, type Sponsor } from '../data/event'
 /**
  * Sponsors: numbered heading, intro, then a grid of glass sponsor cards.
  * The grid adapts to the count: one sponsor gets a single wide card, more
- * sponsors flow into 2-3 columns.
+ * sponsors flow into 2-3 columns. Ends with a "Become a sponsor" call to
+ * action that opens a pre-filled email.
  */
 export function Sponsors({ index }: { index: number }) {
   const count = sponsors.items.length
@@ -35,6 +36,22 @@ export function Sponsors({ index }: { index: number }) {
         {sponsors.items.map((sponsor) => (
           <SponsorCard key={sponsor.name} sponsor={sponsor} wide={count === 1} />
         ))}
+      </Reveal>
+
+      {/* Become a sponsor */}
+      <Reveal className="mt-20 md:mt-28">
+        <div className="flex flex-col gap-8 rounded-3xl border border-white/10 bg-linear-to-br from-fh-purple/15 via-fh-bg/60 to-fh-pink/10 p-8 shadow-[inset_0_1px_0_rgb(255_255_255/0.08)] backdrop-blur-xl sm:p-10 md:flex-row md:items-center md:justify-between md:p-14">
+          <h3 className="max-w-2xl text-3xl leading-[1.05] font-semibold tracking-tighter text-balance sm:text-4xl md:text-5xl">
+            {sponsors.cta.title}
+          </h3>
+          <a
+            href={sponsors.cta.href}
+            className="group inline-flex shrink-0 items-center gap-3 self-start rounded-full bg-white px-8 py-4 text-base font-semibold text-fh-bg transition-colors hover:bg-fh-lilac md:self-auto"
+          >
+            {sponsors.cta.button}
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
       </Reveal>
     </section>
   )
