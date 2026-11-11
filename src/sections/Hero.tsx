@@ -55,9 +55,12 @@ export function Hero() {
         ))}
       </h1>
 
-      {/* Meta row */}
+      {/* Meta row on a dark "smoked glass" panel, so the text stays readable
+          when the scattered mascot cubes drift behind it. Same layered glass
+          recipe as the nav (blur + saturate, top highlight, soft shadow), but
+          tinted dark instead of light. */}
       <div
-        className="mt-10 grid gap-6 border-t border-white/10 pt-6 motion-safe:animate-fade-in md:grid-cols-[1fr_auto_auto] md:items-end md:gap-12"
+        className="mt-10 grid gap-6 rounded-2xl border border-white/10 bg-fh-bg/55 p-5 shadow-[inset_0_1px_0_rgb(255_255_255/0.08),0_12px_40px_rgb(0_0_0/0.45)] backdrop-blur-xl backdrop-saturate-150 motion-safe:animate-fade-in sm:p-6 md:grid-cols-[1fr_auto_auto] md:items-end md:gap-12 md:px-8"
         style={delay(0.7)}
       >
         <p className="max-w-md text-base text-white/70 sm:text-lg">{hero.subline}</p>
