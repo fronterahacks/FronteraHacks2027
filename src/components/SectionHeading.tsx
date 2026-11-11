@@ -26,7 +26,6 @@ export function SectionHeading({ index, label, title, className = '' }: SectionH
       </Reveal>
       <RevealText
         as="h2"
-        delay={0.1}
         className="mt-4 max-w-5xl text-[clamp(2.75rem,8vw,7.5rem)] leading-[0.92] font-semibold tracking-tighter"
       >
         {title}

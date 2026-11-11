@@ -12,21 +12,22 @@ type RevealTextProps = {
   /** Which element to render. Defaults to h2 (section titles). */
   as?: 'h1' | 'h2' | 'h3' | 'p'
   className?: string
-  /** Seconds to wait after it enters view (to sequence with other reveals). */
-  delay?: number
 }
 
 /**
- * Text whose lines slide up from behind invisible masks when it scrolls into
- * view: the same reveal as the hero headline, for any heading or paragraph.
+ * Text that assembles itself as you scroll it into view: each character
+ * rises out of its line's mask while flipping up from flat in 3D and going
+ * from blurred to sharp, cascading left to right.
  *
- * GSAP SplitText finds the real visual line breaks (which depend on screen
- * width), wraps each line in a clipping mask, and re-splits automatically on
- * resize and when web fonts finish loading (autoSplit). It also keeps the
- * text readable to screen readers (aria-label on the element, split pieces
- * hidden). Plays once. Reduced motion: plain text, no animation.
+ * The animation is *scrubbed*: tied to scroll position rather than played
+ * once, so the reader drives it, and it folds away again if they scroll back.
+ * `scrub: 1` adds a one-second catch-up so it glides instead of jittering.
+ *
+ * GSAP SplitText finds the real visual lines (they depend on screen width),
+ * masks each line, and re-splits on resize / font load (autoSplit). Text stays
+ * readable to screen readers. Reduced motion: plain text, no animation.
  */
-export function RevealText({ children, as = 'h2', className, delay = 0 }: RevealTextProps) {
+export function RevealText({ children, as = 'h2', className }: RevealTextProps) {
   const ref = useRef<HTMLElement>(null)
   const reduceMotion = usePrefersReducedMotion()
 
@@ -36,7 +37,7 @@ export function RevealText({ children, as = 'h2', className, delay = 0 }: Reveal
       if (!el || reduceMotion) return
 
       SplitText.create(el, {
-        type: 'lines',
+        type: 'lines,words,chars',
         mask: 'lines',
         autoSplit: true,
         // Returning the animation lets SplitText rebuild it after a re-split.
@@ -45,19 +46,30 @@ export function RevealText({ children, as = 'h2', className, delay = 0 }: Reveal
           // (y, g, p): pad each mask down a touch, pulled back by an equal
           // negative margin so the layout doesn't move.
           gsap.set(self.masks, { paddingBottom: '0.12em', marginBottom: '-0.12em' })
-          return gsap.from(self.lines, {
-            yPercent: 115,
-            duration: 1.1,
-            ease: 'expo.out',
-            stagger: 0.09,
-            delay,
-            scrollTrigger: { trigger: el, start: 'top 85%', once: true },
+          // Depth for the 3D flip: perspective on each line, chars hinge on
+          // their bottom edge.
+          gsap.set(self.lines, { perspective: 900 })
+          gsap.set(self.chars, { transformOrigin: '50% 100%' })
+
+          return gsap.from(self.chars, {
+            yPercent: 110,
+            rotateX: -85,
+            opacity: 0,
+            filter: 'blur(10px)',
+            ease: 'power3.out',
+            stagger: { each: 0.035, from: 'start' },
+            scrollTrigger: {
+              trigger: el,
+              start: 'top 92%', // begins as the title peeks in at the bottom
+              end: 'top 45%', // fully assembled a bit above the middle
+              scrub: 1,
+            },
           })
         },
       })
       // useGSAP reverts the split and its animation automatically on cleanup.
     },
-    { scope: ref, dependencies: [children, reduceMotion, delay] },
+    { scope: ref, dependencies: [children, reduceMotion] },
   )
 
   const Tag = as
