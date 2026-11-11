@@ -1,4 +1,6 @@
 @import "tailwindcss";
+/* Self-hosted variable font (weights 100-900), bundled with the site. */
+@import "@fontsource-variable/hanken-grotesk";
 
 /*
  * Frontera Hacks theme tokens, taken from the placeholder site (css/base.css).
@@ -22,6 +24,13 @@
   --color-fh-cyan: #12c2e9;
   --color-fh-orchid: #c471ed;
   --color-fh-coral: #f64f59;
+
+  /* Fonts: Hanken Grotesk for body text (font-sans), and a monospace stack
+     for the terminal-style labels, buttons, countdown and schedule (font-mono).
+     Courier New matches the old site; the rest are fallbacks for devices
+     that don't have it (e.g. Android). */
+  --font-sans: "Hanken Grotesk Variable", "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Courier New", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 /* Cyan -> orchid -> coral gradient text, as on the old hero CTA. */

@@ -27,7 +27,7 @@ function App() {
           <p className="text-2xl font-bold">
             Spark your curiosity at <span className="text-fh-gradient">Frontera Hacks</span>
           </p>
-          <p className="text-fh-lilac">Coming soon. Scroll down.</p>
+          <p className="font-mono text-fh-lilac">&gt; Coming soon. Scroll down.</p>
         </section>
         {/* Temporary tall sections so there is something to scroll through. */}
         <section className="flex min-h-svh items-center justify-center text-3xl text-fh-lilac/60">
