@@ -14,6 +14,7 @@ import growImg from '../assets/pillars/grow.png'
 import discordIcon from '../assets/social/discord.svg'
 import instagramIcon from '../assets/social/instagram.svg'
 import youtubeIcon from '../assets/social/youtube.svg'
+import mcallenChamberLogo from '../assets/sponsors/mcallen-chamber-of-commerce.png'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -273,8 +274,9 @@ export const sponsors = {
   intro: 'Frontera Hacks is made possible by our wonderful sponsors.',
   thanksLabel: 'With thanks to',
   items: [
-    // TODO: add website link + logo once provided.
-    { name: 'McAllen Chamber of Commerce', url: null, logo: null },
+    // Logo extracted from a screenshot (scripts/extract-white-logo.mjs).
+    // TODO: swap for an official SVG logo, and add the website link.
+    { name: 'McAllen Chamber of Commerce', url: null, logo: mcallenChamberLogo },
   ] satisfies Sponsor[],
   cta: {
     prompt: '> Want to help make this event a reality?',

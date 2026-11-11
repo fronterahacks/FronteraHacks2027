@@ -75,7 +75,12 @@ export function Sponsors({ index }: { index: number }) {
 function SponsorCard({ sponsor, wide }: { sponsor: Sponsor; wide: boolean }) {
   const tilt = useTilt()
   const content = sponsor.logo ? (
-    <img src={sponsor.logo} alt={sponsor.name} loading="lazy" className="max-h-28 w-auto max-w-[70%] object-contain" />
+    <img
+      src={sponsor.logo}
+      alt={sponsor.name}
+      loading="lazy"
+      className={`h-auto object-contain drop-shadow-[0_0_24px_rgb(180_0_255/0.35)] ${wide ? 'w-[min(78%,36rem)]' : 'max-h-28 w-auto max-w-[70%]'}`}
+    />
   ) : (
     <span className="text-center text-[clamp(2rem,6vw,5.5rem)] leading-[0.95] font-semibold tracking-tighter text-balance">
       {sponsor.name}
