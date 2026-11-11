@@ -267,6 +267,9 @@ export const sponsors = {
   heading: 'OUR SPONSORS',
   title: 'Our sponsors',
   subtitle: '> Frontera Hacks is made possible by our wonderful sponsors.',
+  /** Plain-language versions for the new design. */
+  intro: 'Frontera Hacks is made possible by our wonderful sponsors.',
+  thanksLabel: 'With thanks to',
   items: [
     // TODO: add website link + logo once provided.
     { name: 'McAllen Chamber of Commerce', url: null, logo: null },
@@ -274,6 +277,8 @@ export const sponsors = {
   cta: {
     prompt: '> Want to help make this event a reality?',
     label: '> BECOME A SPONSOR',
+    title: 'Want to help make this event a reality?',
+    button: 'Become a sponsor',
     href: 'mailto:fronteradevs@gmail.com?subject=We%20Are%20Interested%20In%20Becoming%20A%20Sponsor%20For%20Frontera%20Hacks',
   },
 } as const
