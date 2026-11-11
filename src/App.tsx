@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { Nav } from './components/Nav'
+import { navLinks } from './data/event'
 import { useLenis } from './scroll/useLenis'
 
 // Lazy-load the 3D scene so page content isn't blocked by Three.js.
@@ -23,7 +24,7 @@ function App() {
       <Nav />
 
       <main>
-        <section className="flex min-h-svh flex-col items-center justify-center gap-4">
+        <section id="top" className="flex min-h-svh flex-col items-center justify-center gap-4">
           <h1 className="text-5xl font-bold tracking-tight text-fh-purple text-fh-glow">
             Frontera Hacks 2027
           </h1>
@@ -32,13 +33,17 @@ function App() {
           </p>
           <p className="font-mono text-fh-lilac">&gt; Coming soon. Scroll down.</p>
         </section>
-        {/* Temporary tall sections so there is something to scroll through. */}
-        <section className="flex min-h-svh items-center justify-center text-3xl text-fh-lilac/60">
-          Section 2
-        </section>
-        <section className="flex min-h-svh items-center justify-center text-3xl text-fh-lilac/60">
-          Section 3
-        </section>
+        {/* Temporary placeholder sections, one per nav link, so the links have
+            somewhere to go. Each gets replaced by its real component later. */}
+        {navLinks.map((link) => (
+          <section
+            key={link.href}
+            id={link.href.slice(1)}
+            className="flex min-h-svh scroll-mt-20 items-center justify-center font-mono text-3xl text-fh-lilac/60"
+          >
+            {`// ${link.label.toUpperCase()}.exe`}
+          </section>
+        ))}
       </main>
     </>
   )

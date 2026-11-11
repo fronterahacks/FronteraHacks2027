@@ -18,7 +18,12 @@ export function useLenis() {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduceMotion) return
 
-    const lenis = new Lenis({ lerp: 0.1 })
+    const lenis = new Lenis({
+      lerp: 0.1,
+      // Smooth-scroll in-page links (#about, #faq, ...). The negative offset
+      // stops each section just below the fixed nav bar instead of under it.
+      anchors: { offset: -80 },
+    })
 
     lenis.on('scroll', (instance) => {
       scrollState.velocity = instance.velocity
