@@ -26,9 +26,12 @@ function App() {
       <Nav />
 
       <main>
-        <Hero>
+        <Hero />
+
+        {/* Countdown gets its own full-width band, aligned with the hero edges */}
+        <section aria-label="Countdown" className="px-5 py-24 sm:px-8 md:px-12 md:py-32">
           <Countdown />
-        </Hero>
+        </section>
         {/* Temporary placeholder sections, one per nav link, so the links have
             somewhere to go. Each gets replaced by its real component later. */}
         {navLinks.map((link) => (

@@ -116,8 +116,12 @@ export const navLinks: NavLink[] = [
 // ---------------------------------------------------------------------------
 
 export const hero = {
+  eyebrow: '4th annual · 24-hour hackathon',
+  /** Big headline, one entry per line. `highlight` gets the gradient. */
+  headline: [{ text: 'Spark your' }, { text: 'curiosity.', highlight: true }],
   ctaLead: 'Spark your curiosity at',
   ctaHighlight: 'Frontera Hacks',
+  scrollHint: 'Scroll to explore',
   subline:
     'The 4th annual hackathon hosted by Frontera Devs to foster a community of developers like you, driven to innovate in the RGV.',
 } as const

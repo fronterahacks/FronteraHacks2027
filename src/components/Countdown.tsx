@@ -64,7 +64,7 @@ export function Countdown() {
   const units = breakdown(remaining)
 
   return (
-    <div className="w-full max-w-6xl">
+    <div className="w-full">
       {/* Eyebrow row */}
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 font-mono text-[11px] tracking-[0.2em] text-white/50 uppercase sm:text-xs">
         <span>
