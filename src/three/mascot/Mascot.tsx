@@ -19,10 +19,12 @@ const EYE_TRAVEL = 1.1
 const HAT_LIFT = 3.5
 const HAT_TILT = 0.38
 const HAT_BACK = -0.3
-/** Scatter by scroll position, in screen-heights scrolled: starts as the
- *  hero begins to leave, fully scattered about one screen down. */
-const SCATTER_START = 0.08
-const SCATTER_END = 1.0
+/** Scatter by scroll position, in screen-heights scrolled. The glass panel
+ *  (info + countdown) starts one screen down, so: stay whole while the
+ *  first screen is in view, come apart as the panel slides up, and be fully
+ *  scattered (behind the glass) once the countdown is on screen. */
+const SCATTER_START = 0.3
+const SCATTER_END = 0.9
 /** Scroll speed (Lenis px/frame) that counts as a full-speed flick. */
 const FAST_SCROLL = 40
 /** Extra scatter a fast flick adds on top of the position-based scatter. */
