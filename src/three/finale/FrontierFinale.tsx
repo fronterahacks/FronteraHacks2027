@@ -1,3 +1,4 @@
+import { FrontierSun } from './FrontierSun'
 import { FrontierTerrain } from './FrontierTerrain'
 
 /**
@@ -8,6 +9,7 @@ import { FrontierTerrain } from './FrontierTerrain'
 export function FrontierFinale() {
   return (
     <group>
+      <FrontierSun />
       <FrontierTerrain />
     </group>
   )

@@ -12,10 +12,10 @@ const NEAR_Z = -8
  *  The camera looks straight ahead from z=10 with a 35deg FOV, so a point at
  *  height y and distance d appears at y / (d * tan(17.5deg)) of the screen's
  *  half-height. With the far edge ~90 units away: START_Y -34 hides the
- *  whole landscape (and mesas) below the screen; END_Y -8 puts the horizon
- *  about two-thirds of the way down, under the footer headline. */
+ *  whole landscape (and mesas) below the screen; END_Y -11 puts the horizon
+ *  ~70% of the way down, below the footer's headline, date and button. */
 const START_Y = -34
-const END_Y = -8
+const END_Y = -11
 /** Grid cell size and how fast the lines flow toward you. */
 const CELL = 2.2
 const FLOW_SPEED = 1.6
@@ -32,7 +32,7 @@ const vertexShader = /* glsl */ `
     float dunes = (sin(x * 0.21) + sin(x * 0.13 + z * 0.17)) * 0.9 * side;
     float far = smoothstep(-48.0, -72.0, z);
     float m = sin(x * 0.07 + 1.3) * 0.6 + sin(x * 0.19 + 0.4) * 0.4;
-    float mesa = smoothstep(0.12, 0.3, m) * 7.0 * far; // clipped into plateaus
+    float mesa = smoothstep(0.12, 0.3, m) * 5.0 * far; // clipped into plateaus
     return dunes + mesa;
   }
 
