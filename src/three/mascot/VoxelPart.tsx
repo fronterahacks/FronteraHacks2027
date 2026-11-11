@@ -7,9 +7,13 @@ import type { Voxel } from './voxels'
 /** Cubes are slightly smaller than a grid cell, leaving thin gaps whose
  *  edges catch the light, so it reads as voxels rather than a flat sprite. */
 const CUBE = 0.9
-/** How far cubes fly at full burst (grid cells) and how much they tumble. */
-const BURST_DISTANCE = 14
-const BURST_SPIN = 2.5
+/** How far cubes fly when fully scattered (grid cells) and how much they
+ *  tumble. Wide enough that the cubes spread across the screen. */
+const BURST_DISTANCE = 30
+const BURST_SPIN = 3
+/** Once scattered, cubes keep drifting: how far (cells) and how fast. */
+const DRIFT = 1.5
+const DRIFT_SPEED = 0.35
 
 // One shared unit cube; each instance is scaled to its voxel's depth.
 const geometry = new THREE.BoxGeometry(1, 1, 1)
@@ -24,8 +28,9 @@ function hash(n: number) {
  * Draws a list of voxels as ONE InstancedMesh: a single GPU draw call for
  * hundreds of cubes, each with its own position, depth and colour.
  *
- * While mascotFx.burst > 0 (fast scrolling), every cube flies outward along
- * its own direction and tumbles, then glides back as burst returns to 0.
+ * While mascotFx.burst > 0 (scrolling away from the hero), every cube flies
+ * outward along its own direction, tumbles, and keeps drifting gently; it
+ * glides back into place as burst returns to 0.
  */
 export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
   const mesh = useRef<THREE.InstancedMesh>(null)
@@ -89,7 +94,7 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
     [],
   )
 
-  useFrame(() => {
+  useFrame((state) => {
     const m = mesh.current
     if (!m) return
     const burst = mascotFx.burst
@@ -102,13 +107,23 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
     }
 
     const { matrix, pos, quat, scale } = scratch
+    const t = state.clock.elapsedTime
     const trail = -mascotFx.direction * 6 // cubes trail opposite the scroll
 
     voxels.forEach((v, i) => {
       const f = flights[i]
       const d = burst * BURST_DISTANCE * f.reach
-      pos.set(v.x + f.dir.x * d, v.y + f.dir.y * d + trail * burst * f.reach, v.z + f.dir.z * d)
-      quat.setFromAxisAngle(f.axis, burst * BURST_SPIN * f.reach)
+      // Slow floating drift, growing as the cube gets further from home.
+      const phase = t * DRIFT_SPEED + i
+      const driftX = Math.sin(phase) * DRIFT * burst
+      const driftY = Math.cos(phase * 0.8) * DRIFT * burst
+      pos.set(
+        v.x + f.dir.x * d + driftX,
+        v.y + f.dir.y * d + driftY + trail * burst * f.reach,
+        v.z + f.dir.z * d,
+      )
+      // Tumble: a fixed amount from scattering, plus a slow continuous spin.
+      quat.setFromAxisAngle(f.axis, burst * (BURST_SPIN * f.reach + t * 0.4))
       scale.set(CUBE, CUBE, v.depth * CUBE * (1 - burst * 0.6)) // long cubes shrink to chunks in flight
       matrix.compose(pos, quat, scale)
       m.setMatrixAt(i, matrix)

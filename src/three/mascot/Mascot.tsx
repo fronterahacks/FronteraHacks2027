@@ -19,10 +19,16 @@ const EYE_TRAVEL = 1.1
 const HAT_LIFT = 3.5
 const HAT_TILT = 0.38
 const HAT_BACK = -0.3
+/** Scatter by scroll position, in screen-heights scrolled: starts as the
+ *  hero begins to leave, fully scattered about one screen down. */
+const SCATTER_START = 0.08
+const SCATTER_END = 1.0
 /** Scroll speed (Lenis px/frame) that counts as a full-speed flick. */
 const FAST_SCROLL = 40
-/** Below this share of full speed, scrolling doesn't burst the mascot. */
-const BURST_THRESHOLD = 0.25
+/** Extra scatter a fast flick adds on top of the position-based scatter. */
+const FLICK_BOOST = 0.3
+/** How fast the mascot rises relative to the page (parallax). */
+const PARALLAX = 0.35
 
 /**
  * The Frontera Devs mascot as a glossy 3D voxel figure, built cube-for-pixel
@@ -33,8 +39,9 @@ const BURST_THRESHOLD = 0.25
  *
  * Behaviour: turns to face the cursor, eyes follow it, blinks every few
  * seconds, tips its hat when hovered (or tapped); idles with a gentle bob
- * and sway when there's no cursor. Rises with parallax as you scroll, and
- * bursts into flying cubes on a fast scroll, reassembling as it slows.
+ * and sway when there's no cursor. As you scroll away from the hero it
+ * scatters into drifting cubes (by scroll position, so it stays scattered),
+ * reassembling only when you scroll back up to it.
  */
 export function Mascot() {
   const parts = useMemo(() => buildMascot(), [])
@@ -66,16 +73,25 @@ export function Mascot() {
     const looking = pointerState.active
 
     // --- Scroll ---
-    // Parallax: rise at ~half the page's speed as you scroll past the hero.
     // window.scrollY works with or without Lenis (reduced motion).
-    const rootY = y + (window.scrollY / window.innerHeight) * viewport.height * 0.55
+    const screensScrolled = window.scrollY / window.innerHeight
+
+    // Parallax: rise slower than the page, so the (scattered) cubes linger
+    // on screen as a backdrop instead of shooting off the top.
+    const rootY = y + screensScrolled * viewport.height * PARALLAX
     r.position.y = rootY
 
-    // Burst: smoothed scroll speed -> 0..1, ignoring gentle scrolling.
+    // Scatter follows scroll POSITION: the further from the hero, the more
+    // it comes apart, and it stays apart while you're down the page. It only
+    // reassembles as you scroll back up.
+    const byPosition = THREE.MathUtils.smoothstep(screensScrolled, SCATTER_START, SCATTER_END)
+
+    // Scroll SPEED adds a temporary kick on top, so flicks feel energetic.
     const raw = THREE.MathUtils.clamp(scrollState.velocity / FAST_SCROLL, -1, 1)
     scrollSpeed.current = THREE.MathUtils.damp(scrollSpeed.current, raw, 6, delta)
-    const amount = Math.abs(scrollSpeed.current)
-    mascotFx.burst = reduceMotion ? 0 : THREE.MathUtils.smoothstep(amount, BURST_THRESHOLD, 1)
+    const kick = Math.abs(scrollSpeed.current) * FLICK_BOOST * (1 - byPosition)
+
+    mascotFx.burst = reduceMotion ? 0 : Math.min(1, byPosition + kick)
     mascotFx.direction = scrollSpeed.current
 
     // --- Turn toward the cursor (or idle sway) ---
