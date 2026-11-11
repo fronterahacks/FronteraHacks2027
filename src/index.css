@@ -56,6 +56,29 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* Neon tube: slow, faint brightness waver ("hum") that never stops */
+  --animate-neon-hum: neon-hum 5s ease-in-out infinite;
+
+  @keyframes neon-hum {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.92; }
+  }
+
+  /* Neon flicker: a short stutter (dim, catch, dim, back on), triggered at
+     random from JS. Steps instead of easing so it snaps like a real tube. */
+  --animate-neon-flicker: neon-flicker 0.7s steps(1, end) 1;
+
+  @keyframes neon-flicker {
+    0% { opacity: 1; }
+    6% { opacity: 0.25; text-shadow: none; }
+    10% { opacity: 1; }
+    16% { opacity: 0.45; text-shadow: 0 0 4px var(--color-fh-purple); }
+    22% { opacity: 1; }
+    48% { opacity: 0.8; }
+    52% { opacity: 1; }
+    100% { opacity: 1; }
+  }
+
   /* Countdown digits: slide up from below with a quick blur, odometer-style */
   --animate-digit-in: digit-in 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -70,6 +93,17 @@
   background-image: linear-gradient(90deg, var(--color-fh-cyan), var(--color-fh-orchid) 56%, var(--color-fh-coral));
   background-clip: text;
   color: transparent;
+}
+
+/* Neon tube text: near-white pink core with stacked pink/purple halos. */
+@utility text-neon {
+  color: #fff4fd;
+  text-shadow:
+    0 0 2px #fff,
+    0 0 8px #ff7ae6,
+    0 0 18px var(--color-fh-pink),
+    0 0 36px var(--color-fh-purple),
+    0 0 72px var(--color-fh-purple);
 }
 
 /* Neon glow used on section headings. */
