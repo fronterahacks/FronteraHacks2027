@@ -1,5 +1,6 @@
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useId, useState } from 'react'
+import { GlitchText } from '../components/GlitchText'
 import { Reveal } from '../components/Reveal'
 import { RevealText } from '../components/RevealText'
 import { SectionHeading } from '../components/SectionHeading'
@@ -8,7 +9,9 @@ import { tracks, type Track } from '../data/event'
 /**
  * Tracks: numbered heading, a short intro, then each track as a huge
  * full-width row between hairlines. Clicking a row expands its description
- * (one open at a time). Rows stagger in as you scroll.
+ * (one open at a time). Rows stagger in as you scroll. On hover / focus a
+ * glass highlight sweeps in and the name slides over and glitches; the open
+ * row's name shows in the brand gradient.
  */
 export function Tracks({ index }: { index: number }) {
   const [open, setOpen] = useState<string | null>(null)
@@ -42,6 +45,8 @@ export function Tracks({ index }: { index: number }) {
 function TrackRow({ track, open, onToggle }: { track: Track; open: boolean; onToggle: () => void }) {
   const panelId = useId()
   const buttonId = useId()
+  const [replay, setReplay] = useState(0)
+  const glitch = () => setReplay((n) => n + 1)
 
   return (
     <div className="border-t border-white/10">
@@ -52,18 +57,32 @@ function TrackRow({ track, open, onToggle }: { track: Track; open: boolean; onTo
           aria-expanded={open}
           aria-controls={panelId}
           onClick={onToggle}
-          className="flex w-full items-center gap-5 py-7 text-left sm:gap-10 md:py-10"
+          onMouseEnter={glitch}
+          onFocus={glitch}
+          className="group relative flex w-full items-center gap-5 py-7 text-left outline-none sm:gap-10 md:py-10"
         >
-          <span className="w-8 shrink-0 font-mono text-sm tracking-[0.2em] text-fh-purple sm:w-12">
+          {/* Frosted glass highlight that sweeps in from the left on hover /
+              keyboard focus. Bleeds slightly past the row edges. */}
+          <span
+            aria-hidden="true"
+            className="absolute inset-y-1 -right-3 -left-3 origin-left scale-x-0 rounded-2xl border border-white/10 bg-white/[0.04] shadow-[inset_0_1px_0_rgb(255_255_255/0.06)] backdrop-blur-md transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-x-100 group-focus-visible:scale-x-100 sm:-right-5 sm:-left-5"
+          />
+          <span className="relative w-8 shrink-0 font-mono text-sm tracking-[0.2em] text-fh-purple transition-colors duration-300 group-hover:text-fh-pink group-focus-visible:text-fh-pink sm:w-12">
             {track.number}
           </span>
-          <span className="flex-1 text-[clamp(2.25rem,7vw,6.5rem)] leading-[0.95] font-semibold tracking-tighter">
-            {track.name}
+          {/* Name slides right and glitches on hover; gradient while open */}
+          <span
+            className="relative flex-1 text-[clamp(2.25rem,7vw,6.5rem)] leading-[0.95] font-semibold tracking-tighter transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-3 group-focus-visible:translate-x-3 sm:group-hover:translate-x-6 sm:group-focus-visible:translate-x-6"
+          >
+            {/* Gradient on an inline span so it spans the text, not the row */}
+            <span className={open ? 'text-fh-gradient' : ''}>
+              <GlitchText text={track.name} replay={replay} stepMs={30} />
+            </span>
           </span>
           {/* "+" turns into "x" when open */}
           <span
             aria-hidden="true"
-            className={`font-mono text-3xl text-white/50 transition-transform duration-500 sm:text-4xl ${open ? 'rotate-45' : ''}`}
+            className={`relative font-mono text-3xl text-white/50 transition-[transform,color] duration-500 group-hover:text-white group-focus-visible:text-white sm:text-4xl ${open ? 'rotate-45' : ''}`}
           >
             +
           </span>
