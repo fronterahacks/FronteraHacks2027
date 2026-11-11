@@ -2,7 +2,9 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { usePrefersReducedMotion } from '../../hooks/usePrefersReducedMotion'
+import { scrollState } from '../../scroll/scrollState'
 import { pointerState } from '../pointerState'
+import { mascotFx } from './mascotFx'
 import { buildMascot, EYE_CENTER_Y, GRID_COLS, GRID_ROWS, HAT_BASE_Y } from './voxels'
 import { VoxelPart } from './VoxelPart'
 
@@ -17,6 +19,10 @@ const EYE_TRAVEL = 1.1
 const HAT_LIFT = 3.5
 const HAT_TILT = 0.38
 const HAT_BACK = -0.3
+/** Scroll speed (Lenis px/frame) that counts as a full-speed flick. */
+const FAST_SCROLL = 40
+/** Below this share of full speed, scrolling doesn't burst the mascot. */
+const BURST_THRESHOLD = 0.25
 
 /**
  * The Frontera Devs mascot as a glossy 3D voxel figure, built cube-for-pixel
@@ -27,7 +33,8 @@ const HAT_BACK = -0.3
  *
  * Behaviour: turns to face the cursor, eyes follow it, blinks every few
  * seconds, tips its hat when hovered (or tapped); idles with a gentle bob
- * and sway when there's no cursor.
+ * and sway when there's no cursor. Rises with parallax as you scroll, and
+ * bursts into flying cubes on a fast scroll, reassembling as it slows.
  */
 export function Mascot() {
   const parts = useMemo(() => buildMascot(), [])
@@ -37,6 +44,8 @@ export function Mascot() {
   const body = useRef<THREE.Group>(null)
   const eyes = useRef<THREE.Group>(null)
   const hat = useRef<THREE.Group>(null)
+  const root = useRef<THREE.Group>(null)
+  const scrollSpeed = useRef(0)
   const nextBlink = useRef(2)
 
   const portrait = viewport.aspect < 1
@@ -51,9 +60,23 @@ export function Mascot() {
     const b = body.current
     const e = eyes.current
     const h = hat.current
-    if (!b || !e || !h) return
+    const r = root.current
+    if (!b || !e || !h || !r) return
     const t = state.clock.elapsedTime
     const looking = pointerState.active
+
+    // --- Scroll ---
+    // Parallax: rise at ~half the page's speed as you scroll past the hero.
+    // window.scrollY works with or without Lenis (reduced motion).
+    const rootY = y + (window.scrollY / window.innerHeight) * viewport.height * 0.55
+    r.position.y = rootY
+
+    // Burst: smoothed scroll speed -> 0..1, ignoring gentle scrolling.
+    const raw = THREE.MathUtils.clamp(scrollState.velocity / FAST_SCROLL, -1, 1)
+    scrollSpeed.current = THREE.MathUtils.damp(scrollSpeed.current, raw, 6, delta)
+    const amount = Math.abs(scrollSpeed.current)
+    mascotFx.burst = reduceMotion ? 0 : THREE.MathUtils.smoothstep(amount, BURST_THRESHOLD, 1)
+    mascotFx.direction = scrollSpeed.current
 
     // --- Turn toward the cursor (or idle sway) ---
     const idleSway = reduceMotion ? 0 : Math.sin(t * 0.5) * 0.12
@@ -78,7 +101,8 @@ export function Mascot() {
     const hovering =
       looking &&
       Math.abs(cursorX - x) < (GRID_COLS * unit) / 2 &&
-      Math.abs(cursorY - y) < (GRID_ROWS * unit) / 2
+      Math.abs(cursorY - rootY) < (GRID_ROWS * unit) / 2 &&
+      mascotFx.burst < 0.1 // no hat tip mid-explosion
     const tip = hovering ? 1 : 0
     // A slightly slower "settle" than "lift" so it feels like a polite gesture.
     const speed = hovering ? 7 : 4
@@ -95,7 +119,7 @@ export function Mascot() {
   })
 
   return (
-    <group position={[x, y, 0]} scale={unit}>
+    <group ref={root} position={[x, y, 0]} scale={unit}>
       <group ref={body} rotation={[0, REST_YAW, 0]}>
         <VoxelPart voxels={parts.body} />
         {/* Hat pivots around its brim so the tip looks natural */}
