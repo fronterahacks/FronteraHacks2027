@@ -24,7 +24,7 @@ export function Hero() {
           alt=""
           width={1278}
           height={105}
-          className="w-56 opacity-90 motion-safe:animate-rise-in sm:w-72 md:w-80"
+          className="w-64 opacity-90 motion-safe:animate-rise-in sm:w-80 md:w-96"
           style={delay(0.1)}
         />
       </div>
