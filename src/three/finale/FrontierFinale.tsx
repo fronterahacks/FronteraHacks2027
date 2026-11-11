@@ -1,3 +1,4 @@
+import { FrontierHorizon } from './FrontierHorizon'
 import { FrontierSun } from './FrontierSun'
 import { FrontierTerrain } from './FrontierTerrain'
 
@@ -11,6 +12,7 @@ export function FrontierFinale() {
     <group>
       <FrontierSun />
       <FrontierTerrain />
+      <FrontierHorizon />
     </group>
   )
 }
