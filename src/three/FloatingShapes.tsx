@@ -2,6 +2,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
+import { scrollState } from '../scroll/scrollState'
 import { pointerState } from './pointerState'
 
 type Kind = 'torusKnot' | 'torus' | 'sphere' | 'roundedBox' | 'capsule' | 'icosahedron'
@@ -81,7 +82,18 @@ function makeMaterial(finish: Finish, color = '#ffffff'): THREE.Material {
   }
 }
 
+/**
+ * Scroll-speed effect strength shared by all shapes, computed once per
+ * frame in <FloatingShapes>. Signed: + while scrolling down, - while up.
+ * About -1..1, already smoothed.
+ */
+const scrollFx = { speed: 0 }
+
 function Shape({ config, index }: { config: ShapeConfig; index: number }) {
+  // Outer group: position + stretch, aligned to the screen.
+  // Inner mesh: spin. Kept separate so the scroll stretch is always
+  // vertical on screen instead of along the shape's tumbling axis.
+  const holder = useRef<THREE.Group>(null)
   const ref = useRef<THREE.Mesh>(null)
   const viewport = useThree((s) => s.viewport)
   const material = useMemo(() => makeMaterial(config.finish, config.color), [config.finish, config.color])
@@ -93,6 +105,7 @@ function Shape({ config, index }: { config: ShapeConfig; index: number }) {
 
   // Shrink everything on narrow (phone) screens so shapes don't crowd.
   const fit = Math.min(1, viewport.width / 11)
+  const size = config.scale * fit
   const baseX = config.x * viewport.width
   const baseY = config.y * viewport.height
 
@@ -100,8 +113,9 @@ function Shape({ config, index }: { config: ShapeConfig; index: number }) {
   const push = useRef(new THREE.Vector2())
 
   useFrame((state, delta) => {
+    const outer = holder.current
     const mesh = ref.current
-    if (!mesh) return
+    if (!outer || !mesh) return
     const t = state.clock.elapsedTime
 
     // Gentle float: slow up/down drift plus a slight sideways sway.
@@ -132,32 +146,60 @@ function Shape({ config, index }: { config: ShapeConfig; index: number }) {
     push.current.x = THREE.MathUtils.damp(push.current.x, targetX, 5, delta)
     push.current.y = THREE.MathUtils.damp(push.current.y, targetY, 5, delta)
 
-    mesh.position.set(floatX + push.current.x, floatY + push.current.y, config.z)
+    // --- Scroll speed ---
+    const speed = scrollFx.speed
+    const amount = Math.abs(speed)
+    // Scatter: move outward from the screen centre, more for faster scrolls.
+    const scatter = 1 + amount * 0.35
+    // Drag: lag behind the scroll direction, near shapes more than far ones.
+    const drag = -speed * 0.6 * (1 + config.z * 0.15)
 
-    // Spin faster while being pushed, like it was actually knocked.
-    const knock = 1 + push.current.length() * 3
+    outer.position.set(
+      floatX * scatter + push.current.x,
+      floatY * scatter + push.current.y + drag,
+      config.z,
+    )
+    // Stretch tall and thin while scrolling fast, like it's being pulled.
+    outer.scale.set(size * (1 - amount * 0.12), size * (1 + amount * 0.35), size * (1 - amount * 0.12))
+
+    // Spin faster while being pushed or scrolled, like it was knocked.
+    const knock = 1 + push.current.length() * 3 + amount * 4
     mesh.rotation.x += delta * 0.15 * spin * knock
     mesh.rotation.y += delta * 0.22 * spin * knock
   })
 
   return (
-    <mesh
-      ref={ref}
-      geometry={geometries[config.kind]}
-      material={material}
-      scale={config.scale * fit}
-      rotation={[seed, seed * 0.5, 0]}
-    />
+    <group ref={holder} scale={size}>
+      <mesh
+        ref={ref}
+        geometry={geometries[config.kind]}
+        material={material}
+        rotation={[seed, seed * 0.5, 0]}
+      />
+    </group>
   )
 }
 
 /** The hero's glossy floating shapes. */
 export function FloatingShapes() {
   const group = useRef<THREE.Group>(null)
+  const viewport = useThree((s) => s.viewport)
 
-  // The whole arrangement tilts slightly toward the cursor (parallax depth).
   useFrame((_, delta) => {
     if (!group.current) return
+
+    // Smoothed scroll speed for every shape to read. Lenis reports roughly
+    // pixels per frame; ~40 counts as "fast", so map to -1..1.
+    const raw = THREE.MathUtils.clamp(scrollState.velocity / 40, -1, 1)
+    scrollFx.speed = THREE.MathUtils.damp(scrollFx.speed, raw, 6, delta)
+
+    // Parallax: rise at ~half the page's speed as you scroll past the hero,
+    // so the shapes feel like a deeper layer behind the content.
+    // window.scrollY works with or without Lenis (reduced motion).
+    const screensScrolled = window.scrollY / window.innerHeight
+    group.current.position.y = screensScrolled * viewport.height * 0.55
+
+    // The whole arrangement tilts slightly toward the cursor (depth).
     const tx = pointerState.active ? -pointerState.y * 0.08 : 0
     const ty = pointerState.active ? pointerState.x * 0.12 : 0
     group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, tx, 3, delta)
