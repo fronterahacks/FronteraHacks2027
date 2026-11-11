@@ -5,6 +5,7 @@ import { SectionHeading } from './components/SectionHeading'
 import { navLinks, sectionTitles, type NavLink } from './data/event'
 import { About } from './sections/About'
 import { Faq } from './sections/Faq'
+import { Footer } from './sections/Footer'
 import { Hero } from './sections/Hero'
 import { Schedule } from './sections/Schedule'
 import { Sponsors } from './sections/Sponsors'
@@ -62,6 +63,8 @@ function App() {
           )
         })}
       </main>
+
+      <Footer />
     </>
   )
 }

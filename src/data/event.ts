@@ -361,6 +361,11 @@ export const socials: Social[] = [
 ]
 
 export const footer = {
+  eyebrow: 'See you there',
+  headline: 'See you on the frontier.',
+  /** Shown instead of Register while event.registerUrl is null. */
+  updatesLabel: 'Get updates',
+  codeOfConductLabel: 'MLH Code of Conduct',
   helpText: 'Need help? Email us at',
   credit: `${event.year} ${event.name}. Made with ♡ by the ${event.organizer} team`,
 } as const
