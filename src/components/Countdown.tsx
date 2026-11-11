@@ -73,7 +73,7 @@ export function Countdown() {
   return (
     <div className="w-full">
       {/* Eyebrow row */}
-      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 font-mono text-[11px] tracking-[0.2em] text-white/50 uppercase sm:text-xs">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 font-mono text-xs tracking-[0.2em] text-white/70 uppercase sm:text-sm md:text-base">
         <span>
           <span className="text-fh-purple">// </span>
           {label.lead}
@@ -97,7 +97,7 @@ export function Countdown() {
                 <Digit key={`${unit.label}-${i}`} value={d} />
               ))}
             </span>
-            <span className="mt-2 font-mono text-[10px] tracking-[0.2em] text-fh-lilac/60 uppercase drop-shadow-[0_0_6px_rgb(180_0_255/0.6)] sm:text-xs">
+            <span className="mt-3 font-mono text-xs tracking-[0.2em] text-fh-lilac/85 uppercase drop-shadow-[0_0_6px_rgb(180_0_255/0.6)] sm:text-sm md:text-base">
               {unit.label}
             </span>
           </div>

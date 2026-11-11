@@ -30,7 +30,7 @@ export function Hero() {
       </div>
 
       {/* Eyebrow */}
-      <p className="mt-8 overflow-hidden font-mono text-[11px] tracking-[0.25em] text-white/60 uppercase sm:text-xs">
+      <p className="mt-8 overflow-hidden font-mono text-xs tracking-[0.25em] text-white/70 uppercase sm:text-sm">
         <span className="inline-block motion-safe:animate-rise-in" style={delay(0.2)}>
           <span className="text-fh-purple">// </span>
           {hero.eyebrow}
@@ -62,13 +62,13 @@ export function Hero() {
       >
         <p className="max-w-md text-base text-white/70 sm:text-lg">{hero.subline}</p>
 
-        <dl className="flex gap-10 font-mono text-xs tracking-[0.2em] uppercase">
+        <dl className="flex gap-10 font-mono text-xs tracking-[0.2em] uppercase sm:text-sm">
           <div>
-            <dt className="text-white/40">Date</dt>
+            <dt className="text-white/60">Date</dt>
             <dd className="mt-1 text-white">{event.dateLabel}</dd>
           </div>
           <div>
-            <dt className="text-white/40">Location</dt>
+            <dt className="text-white/60">Location</dt>
             <dd className="mt-1 text-white">{event.location}</dd>
           </div>
         </dl>
@@ -85,7 +85,7 @@ export function Hero() {
         ) : (
           <a
             href="#about"
-            className="justify-self-start rounded-full border border-white/20 px-6 py-3 font-mono text-xs tracking-[0.2em] text-white/80 uppercase transition hover:border-white/60 hover:text-white"
+            className="justify-self-start rounded-full border border-white/20 px-6 py-3 font-mono text-xs tracking-[0.2em] text-white/85 uppercase sm:text-sm transition hover:border-white/60 hover:text-white"
           >
             {hero.scrollHint} ↓
           </a>
