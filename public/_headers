@@ -1,0 +1,32 @@
+# Cloudflare response headers for every file the site serves.
+# Format: a URL pattern, then indented "Header: value" lines.
+# Docs: https://developers.cloudflare.com/workers/static-assets/headers/
+
+/*
+  # Content Security Policy: the browser may only load code, styles, fonts,
+  # images and data from this site itself. Blocks most injection attacks.
+  #  - script-src 'self': no inline or third-party scripts. The two
+  #    cloudflareinsights hosts are only for Cloudflare Web Analytics, if it
+  #    is turned on in the dashboard (harmless otherwise).
+  #  - style-src 'unsafe-inline': GSAP, React and SplitText set element
+  #    styles at runtime; this allows style attributes, not scripts.
+  #  - img-src data:: Vite embeds tiny images (social icons) as data: URLs.
+  #  - frame-ancestors 'none': no other site may embed this one (clickjacking).
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' https://cloudflareinsights.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests
+  # Older browsers' version of frame-ancestors.
+  X-Frame-Options: DENY
+  # Don't guess file types (stops files being run as something else).
+  X-Content-Type-Options: nosniff
+  # Other sites see only our domain, never full page URLs, when people click out.
+  Referrer-Policy: strict-origin-when-cross-origin
+  # The site never needs these, so turn them off entirely.
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()
+  # Isolate this page from windows it opens (e.g. Airtable, Instagram).
+  Cross-Origin-Opener-Policy: same-origin
+  # HTTPS only, for a year (Cloudflare serves everything over HTTPS).
+  Strict-Transport-Security: max-age=31536000
+
+# Built JS/CSS/images have a content hash in their file names, so a changed
+# file always gets a new name: browsers can cache these "forever".
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
