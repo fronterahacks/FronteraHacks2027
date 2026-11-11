@@ -31,6 +31,9 @@ const FAST_SCROLL = 40
 const FLICK_BOOST = 0.3
 /** How fast the mascot rises relative to the page (parallax). */
 const PARALLAX = 0.35
+/** The cubes fade out as the hero's bottom edge (end of the glass panel)
+ *  moves from this share of the screen height up to the top. */
+const FADE_ZONE = 0.7
 
 /**
  * The Frontera Devs mascot as a glossy 3D voxel figure, built cube-for-pixel
@@ -43,7 +46,8 @@ const PARALLAX = 0.35
  * seconds, tips its hat when hovered (or tapped); idles with a gentle bob
  * and sway when there's no cursor. As you scroll away from the hero it
  * scatters into drifting cubes (by scroll position, so it stays scattered),
- * reassembling only when you scroll back up to it.
+ * reassembling only when you scroll back up to it. Past the hero panel the
+ * cubes shrink away so the sections below get a clean background.
  */
 export function Mascot() {
   const parts = useMemo(() => buildMascot(), [])
@@ -95,6 +99,14 @@ export function Mascot() {
 
     mascotFx.burst = reduceMotion ? 0 : Math.min(1, byPosition + kick)
     mascotFx.direction = scrollSpeed.current
+
+    // Fade out once you've scrolled past the hero (#top), measured from where
+    // its bottom edge is on screen, so it adapts to the panel's real height.
+    const hero = document.getElementById('top')
+    const heroBottom = hero ? hero.getBoundingClientRect().bottom : Infinity
+    mascotFx.fade = THREE.MathUtils.smoothstep(1 - heroBottom / (window.innerHeight * FADE_ZONE), 0, 1)
+    // Fully faded: stop drawing it at all (saves GPU work further down).
+    r.visible = mascotFx.fade < 0.999
 
     // --- Turn toward the cursor (or idle sway) ---
     const idleSway = reduceMotion ? 0 : Math.sin(t * 0.5) * 0.12

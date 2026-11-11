@@ -124,14 +124,20 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
       return
     }
     wasBurst.current = true
+    // Fully faded out (scrolled past the hero): hidden, so skip the work.
+    if (mascotFx.fade >= 0.999) return
 
     const { matrix, pos, quat, scale } = scratch
     const t = state.clock.elapsedTime
     const trail = -mascotFx.direction * 6 // cubes trail opposite the scroll
 
+    // Past the hero, cubes dissolve: drift further out while shrinking to 0.
+    const fade = mascotFx.fade
+    const shrink = 1 - fade
+
     voxels.forEach((v, i) => {
       const f = flights[i]
-      const d = burst * BURST_DISTANCE * f.reach
+      const d = burst * BURST_DISTANCE * f.reach * (1 + fade * 0.8)
       // Slow floating drift, growing as the cube gets further from home.
       const phase = t * DRIFT_SPEED + i
       const driftX = Math.sin(phase) * DRIFT * burst
@@ -144,7 +150,8 @@ export function VoxelPart({ voxels }: { voxels: Voxel[] }) {
       // Tumble: a fixed amount from scattering, plus a slow rocking that
       // stays bounded (sin), so it can't build up the longer the page is open.
       quat.setFromAxisAngle(f.axis, burst * (BURST_SPIN * f.reach + Math.sin(t * 0.4 + i) * 0.8))
-      scale.set(CUBE, CUBE, v.depth * CUBE * (1 - burst * 0.6)) // long cubes shrink to chunks in flight
+      // Long cubes shrink to chunks in flight; everything shrinks away on fade.
+      scale.set(CUBE * shrink, CUBE * shrink, v.depth * CUBE * (1 - burst * 0.6) * shrink)
       matrix.compose(pos, quat, scale)
       m.setMatrixAt(i, matrix)
     })
