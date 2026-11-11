@@ -1,4 +1,5 @@
 import { lazy, Suspense } from 'react'
+import { Countdown } from './components/Countdown'
 import { Nav } from './components/Nav'
 import { navLinks } from './data/event'
 import { Hero } from './sections/Hero'
@@ -25,7 +26,9 @@ function App() {
       <Nav />
 
       <main>
-        <Hero />
+        <Hero>
+          <Countdown />
+        </Hero>
         {/* Temporary placeholder sections, one per nav link, so the links have
             somewhere to go. Each gets replaced by its real component later. */}
         {navLinks.map((link) => (
