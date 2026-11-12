@@ -33,7 +33,6 @@ voxel figure, a neon timeline that lights up through the schedule, and a neon fr
 | Animation | [GSAP](https://gsap.com) (ScrollTrigger, SplitText) |
 | Font | Hanken Grotesk (self-hosted via Fontsource) |
 | Hosting | [Cloudflare Workers](https://developers.cloudflare.com/workers/static-assets/) (static assets) |
-| Registration | [Airtable](https://airtable.com) form (no user data is stored by this site) |
 
 ## Run it locally
 
