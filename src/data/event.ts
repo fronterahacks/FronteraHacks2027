@@ -79,7 +79,7 @@ export const event = {
   registerUrl: 'https://airtable.com/app03CmLX12vmtzhI/shrhTN6iuW0TPlnwi' as string | null,
   /** Button text for registerUrl. Change to 'Register' when full registration opens. */
   registerLabel: 'Pre-register',
-  contactEmail: 'fronterahacks@gmail.com',
+  contactEmail: 'fronteradevs@gmail.com',
   codeOfConductUrl: 'https://static.mlh.io/docs/mlh-code-of-conduct.pdf',
 } as const
 
@@ -183,30 +183,9 @@ export const tracks = {
   items: [
     {
       number: '01',
-      name: 'Social Good',
-      icon: '🤝',
-      description: [
-        "Create a project that uses technology to make a positive difference in people's lives. Whether addressing healthcare access, education equity, civic engagement, mental health, or community resilience, this track is about building solutions that uplift individuals and strengthen communities.",
-        'Projects should be driven by empathy and impact — prioritizing the needs of real people and creating tools that are accessible, ethical, and genuinely useful.',
-      ],
-    },
-    {
-      number: '02',
-      name: 'Machine Learning / AI',
-      icon: '🤖',
-      description: [
-        "Build a project that harnesses the power of machine learning and artificial intelligence to solve meaningful challenges. Whether it's developing predictive models, creating intelligent automation, building recommendation systems, or applying computer vision and NLP, this track is about turning data into impact.",
-        'Projects can focus on making AI more accessible and explainable, applying models to underserved domains, or designing systems that push the boundaries of what technology can do.',
-      ],
-    },
-    {
-      number: '03',
-      name: 'Enterprise',
-      icon: '🏢',
-      description: [
-        'Design a solution that transforms the way organizations operate. From streamlining workflows and automating processes to improving team collaboration, data management, or decision-making at scale, this track challenges you to build tools that make businesses smarter and more efficient.',
-        "Projects can target any industry and focus on reducing friction, cutting costs, improving productivity, or enabling companies to do things they simply couldn't do before.",
-      ],
+      name: 'To be announced (TBA)',
+      icon: '📣',
+      description: ['This year’s tracks will be announced soon. Check back for updates!'],
     },
   ] satisfies Track[],
 } as const
@@ -230,33 +209,13 @@ export const schedule = {
       label: 'SAT',
       date: 'MARCH 6TH',
       heading: 'Saturday, March 6',
-      items: [
-        { time: '9:00 AM', event: 'Check In' },
-        { time: '10:00 AM', event: 'Breakfast Time' },
-        { time: '10:30 AM', event: 'Opening Ceremony & Hackathon Starts' },
-        { time: '11:00 AM', event: 'AI/API Workshop' },
-        { time: '12:30 PM', event: 'Lunch Time' },
-        { time: '1:00 PM', event: 'Github Workshop' },
-        { time: '1:30 PM', event: 'Board Games Room Open' },
-        { time: '2:30 PM', event: 'Ping Pong Available' },
-        { time: '4:30 PM', event: 'Dinner Time' },
-        { time: '5:30 PM', event: 'UI/UX Workshop' },
-        { time: '11:00 PM', event: 'Karaoke' },
-      ],
+      items: [{ time: '—', event: 'To be announced (TBA)' }],
     },
     {
       label: 'SUN',
       date: 'MARCH 7TH',
       heading: 'Sunday, March 7',
-      items: [
-        { time: '12:00 AM', event: 'Midnight Movie' },
-        { time: '8:00 AM', event: 'Submission Closes & Breakfast Time' },
-        { time: '10:00 AM', event: 'Professor Trivia' },
-        { time: '12:00 PM', event: 'Judging Concludes' },
-        { time: '12:15 PM', event: 'Closing Ceremony' },
-        { time: '12:30 PM', event: 'Winner Showcase' },
-        { time: '1:30 PM', event: 'Hackathon Officially Ends' },
-      ],
+      items: [{ time: '—', event: 'To be announced (TBA)' }],
     },
   ] satisfies ScheduleDay[],
 } as const
